@@ -1,8 +1,9 @@
 /*
 ==========================================
-Strawberry JS (Beta Version 1.0.1)
-Created by Ken Terrado, 2021
-Copyright (c) 2021 Ken Terrado
+Strawberry JS (Beta Version 1.0.8)
+Created by Ken Terrado, 2022
+
+Copyright (c) 2022 Ken Terrado
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +23,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Special Credits to the authors of DomReady library!
+Special Credits to the authors of DomReady libarary!
+
 ==========================================
 */
 
@@ -1646,7 +1648,7 @@ Special Credits to the authors of DomReady library!
 
                     /** Decides what argument should be executed as callback function
                         By checking if the second argument was passed a preset **/
-                    if (!(arg1 instanceof Function)) callback = arg1;
+                    if (arg1 instanceof Function) callback = arg1;
                     if (arg1 instanceof Array) callback = arg2;
 
                     // Checkpoint
