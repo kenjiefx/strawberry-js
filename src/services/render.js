@@ -16,6 +16,7 @@ $render(scopeObj,renderElement,skip=null){
     this.$styles(scopeObj,renderElement);
     this.$models(scopeObj,renderElement);
     this.$disablers(scopeObj,renderElement);
+    this.$requires(scopeObj,renderElement);
 
     if (skip!=='events') {
         this.$events(scopeObj,renderElement);

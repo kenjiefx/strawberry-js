@@ -9,6 +9,7 @@ $toggle:(hidableName=null)=>{
     }
 
     let e = this.$scope.$app;
+    hidableName = '@'+hidableName;
 
     let hideService = window[e].$scopes[this.$scope.$name].$services.$public()['$hide'];
     let $hide = hideService().init(this.$scope,hideService);

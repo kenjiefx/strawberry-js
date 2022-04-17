@@ -7,8 +7,9 @@ $hide:(elementName=null)=>{
             }
         }
     }
-
     
+    elementName = '@'+elementName;
+
     let hide=(element)=>{
         // Check if the current state of the element is true (means SHOWING)
         if (this.$scope.$hidden[elementName].state) {

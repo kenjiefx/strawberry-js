@@ -15,7 +15,10 @@ $ifs(scopeObj,scopeElement){
             let resolved = strawberry.$$core.$resolver.expression(scopeObj,argument.trim());
 
             if (typeof resolved == "boolean") {
-                if (!resolved) conditionalElement.innerHTML= '';
+                if (!resolved) {
+                    conditionalElement.innerHTML= '';
+                    conditionalElement.outerHTML  = '<!-- strawberry.js: '+conditionalElement.outerHTML+' -->';
+                }
             }
             else {
                 if (strawberry.debug) {

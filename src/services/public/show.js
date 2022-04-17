@@ -9,6 +9,8 @@ $show:(elementName=null)=>{
     }
 
     let e = this.$scope.$app;
+    elementName = '@'+elementName;
+    
     let show=(element)=>{
         // Check if the current state of the element is false (means HIDDEN)
         if (!this.$scope.$hidden[elementName].state) {

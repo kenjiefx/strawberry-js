@@ -10,5 +10,19 @@
         <!--
             You can use this template for Quick Testing!
         -->
+        <app xscope="testScope">
+            {{message}}
+        </app>
+        <script type="text/javascript">
+
+            // Create a new Strawberry app instance
+            strawberry.create('app');
+
+            // Create a new scope
+            app.scope('testScope',($scope)=>{
+                $scope.message = 'Hello World!';
+            });
+            
+        </script>
     </body>
 </html>
