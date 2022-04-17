@@ -4,6 +4,7 @@ class Scope {
         this.$name = scopeName;
         this.$hidden = {};
         this.$togglers = {};
+        this.$deps = [];
         this.$switchers = {};
         this.$patchables = {};
         this.$renderables = {};
@@ -23,6 +24,7 @@ class Scope {
                }
            }
            if (strawberry.$factory.hasOwnProperty(preset)) {
+               this.$deps.push(preset);
                this[preset] = strawberry.$factory[preset];
            }
         }

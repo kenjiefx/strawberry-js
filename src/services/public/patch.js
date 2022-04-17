@@ -10,6 +10,8 @@ $patch:(patchName=null,templateSrc=null)=>{
 
     let e = this.$scope.$app;
 
+    patchName = '@'+patchName;
+
     if (this.$scope.$patchables.hasOwnProperty(patchName)) {
 
         // Finds all patchable element

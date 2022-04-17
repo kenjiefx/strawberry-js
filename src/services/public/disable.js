@@ -10,6 +10,7 @@ $disable:(enableName=null,isEnable=null)=>{
 
     let e = this.$scope.$app;
     let willDisable = isEnable ?? true;
+    enableName = '@'+enableName;
 
     if (willDisable) {
         let allDisabledInputs = strawberry.$$core.$getElementsFromScope(this.$scope.$name,'xdisable="'+enableName+'"');

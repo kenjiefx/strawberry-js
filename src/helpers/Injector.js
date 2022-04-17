@@ -1,6 +1,7 @@
 class Injector {
     constructor(funcString){
         this.funcString = funcString.toString();
+        this.args = [];
     }
     scope(scopeObj){
         this.scopeObj = scopeObj;
@@ -49,6 +50,7 @@ class Injector {
             }
             if (strawberry.$factory.hasOwnProperty(arg)) {
                 argObj.push(strawberry.$factory[arg]);
+                this.args.push(arg);
                 continue;
             }
             if (strawberry.$service.hasOwnProperty(arg)) {
@@ -61,6 +63,7 @@ class Injector {
                 } else {
                     argObj.push({});
                 }
+                this.args.push(arg);
                 continue;
             }
             if (strawberry.debug) {
@@ -68,6 +71,8 @@ class Injector {
             }
         }
         return argObj;
-
+    }
+    getResolvedArgs(){
+        return this.args;
     }
 }

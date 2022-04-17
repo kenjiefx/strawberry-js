@@ -8,6 +8,7 @@ $switch:(switchName=null)=>{
         }
     }
     let e = this.$scope.$app;
+    switchName = '@'+switchName;
     return {
         when:(whenName)=>{
             window[e].$scopes[this.$scope.$name].$services.$switchers().$on(this.$scope,switchName,whenName);

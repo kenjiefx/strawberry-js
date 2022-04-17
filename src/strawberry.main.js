@@ -92,6 +92,9 @@ strawberry.create = (e,fn) => {
                 let injector = new Injector(callback);
                 let args = injector.scope(window[e].$scopes[scopeName]).resolve();
 
+                // Registering injected dependency
+                window[e].$scopes[scopeName].$deps.push(...injector.getResolvedArgs());
+
                 // Calls the callback function required when creating a scope
                 callback(...args);
 
