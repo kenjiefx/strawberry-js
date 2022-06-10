@@ -17,7 +17,9 @@ $ifs(scopeObj,scopeElement){
             if (typeof resolved == "boolean") {
                 if (!resolved) {
                     conditionalElement.innerHTML= '';
-                    conditionalElement.outerHTML  = '<!-- strawberry.js: '+conditionalElement.outerHTML+' -->';
+                    if (null!==conditionalElement.parentNode) {
+                        conditionalElement.outerHTML  = '<!-- strawberry.js: '+conditionalElement.outerHTML+' -->';
+                    }
                 }
             }
             else {

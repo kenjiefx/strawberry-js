@@ -1,16 +1,16 @@
 $repeats(scopeObj,scopeElement){
 
     let getReferenceName=(expression)=>{
-        if (expression.includes('until')) {
+        if (expression.includes(' until ')) {
             return '$$index';
         }
-        return expression.split('as')[0].trim();
+        return expression.split(' as ')[0].trim();
     }
     let getAliasName=(expression)=>{
-        if (expression.includes('until')) {
+        if (expression.includes(' until ')) {
             return expression.split('until')[1].trim();
         }
-        return expression.split('as')[1].trim();
+        return expression.split(' as ')[1].trim();
     }
 
     // Finds all elements with repeatable elements
