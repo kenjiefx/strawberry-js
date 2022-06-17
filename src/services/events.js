@@ -50,4 +50,18 @@ $events(scopeObj,scopeElement){
 
     }
 
+    let allTouchableElements = scopeElement.querySelectorAll('[xtouch]');
+
+    for (var i = 0; i < allTouchableElements.length; i++) {
+        let touchElement = allTouchableElements[i];
+
+        // Takes the function name referenced for the keyup event
+        let touchFunction = strawberry.$$core.$getXValue(touchElement,'xtouch');
+
+        if (!this.$isEventLocked(touchElement,'keyup')) {
+            addEvent(scopeObj,touchElement,touchFunction,'keyup');
+        }
+
+    }
+
 }

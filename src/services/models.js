@@ -36,7 +36,7 @@ $models(scopeObj,scopeElement){
         let modelExpression = strawberry.$$core.$getXValue(modelElement,'xmodel');
 
         // Different behavior for input as it will get the value
-        if(modelElement.tagName==='INPUT' || modelElement.tagName==='SELECT'){
+        if(modelElement.tagName==='INPUT' || modelElement.tagName==='SELECT' || modelElement.tagName==='TEXTAREA'){
 
             if (modelElement.type==='radio') {
 

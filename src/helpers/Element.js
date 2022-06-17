@@ -23,6 +23,9 @@ class Element {
     removeClass(className){
         this.$element.classList.remove(className);
     }
+    data(datasetName){
+        return this.$element.dataset[datasetName] ?? null;
+    }
     toggleClass(className){
         let classes = this.listClass();
         for (var i = 0; i < classes.length; i++) {

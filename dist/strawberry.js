@@ -1,6 +1,6 @@
 /*
 ==========================================
-Strawberry JS (Beta Version 1.0.8)
+Strawberry JS (Beta Version 1.2.1)
 Created by Ken Terrado, 2022
 
 Copyright (c) 2022 Ken Terrado
@@ -11,10 +11,8 @@ in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
-
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -402,6 +400,20 @@ Special Credits to the authors of DomReady libarary!
 
             }
 
+            let allTouchableElements = scopeElement.querySelectorAll('[xtouch]');
+
+            for (var i = 0; i < allTouchableElements.length; i++) {
+                let touchElement = allTouchableElements[i];
+
+                // Takes the function name referenced for the keyup event
+                let touchFunction = strawberry.$$core.$getXValue(touchElement, 'xtouch');
+
+                if (!this.$isEventLocked(touchElement, 'keyup')) {
+                    addEvent(scopeObj, touchElement, touchFunction, 'keyup');
+                }
+
+            }
+
         }
         $hides(scopeObj, scopeElement) {
 
@@ -448,7 +460,12 @@ Special Credits to the authors of DomReady libarary!
                     let resolved = strawberry.$$core.$resolver.expression(scopeObj, argument.trim());
 
                     if (typeof resolved == "boolean") {
-                        if (!resolved) conditionalElement.innerHTML = '';
+                        if (!resolved) {
+                            conditionalElement.innerHTML = '';
+                            if (null !== conditionalElement.parentNode) {
+                                conditionalElement.outerHTML = '<!-- strawberry.js: ' + conditionalElement.outerHTML + ' -->';
+                            }
+                        }
                     } else {
                         if (strawberry.debug) {
                             console.warn('strawberry.js: Unable to resolve "if" conditional with argument "' + argument + '", return value must be typeof Boolean');
@@ -536,7 +553,7 @@ Special Credits to the authors of DomReady libarary!
                 let modelExpression = strawberry.$$core.$getXValue(modelElement, 'xmodel');
 
                 // Different behavior for input as it will get the value
-                if (modelElement.tagName === 'INPUT' || modelElement.tagName === 'SELECT') {
+                if (modelElement.tagName === 'INPUT' || modelElement.tagName === 'SELECT' || modelElement.tagName === 'TEXTAREA') {
 
                     if (modelElement.type === 'radio') {
 
@@ -640,6 +657,7 @@ Special Credits to the authors of DomReady libarary!
             this.$styles(scopeObj, renderElement);
             this.$models(scopeObj, renderElement);
             this.$disablers(scopeObj, renderElement);
+            this.$requires(scopeObj, renderElement);
 
             if (skip !== 'events') {
                 this.$events(scopeObj, renderElement);
@@ -650,16 +668,16 @@ Special Credits to the authors of DomReady libarary!
         $repeats(scopeObj, scopeElement) {
 
             let getReferenceName = (expression) => {
-                if (expression.includes('until')) {
+                if (expression.includes(' until ')) {
                     return '$$index';
                 }
-                return expression.split('as')[0].trim();
+                return expression.split(' as ')[0].trim();
             }
             let getAliasName = (expression) => {
-                if (expression.includes('until')) {
+                if (expression.includes(' until ')) {
                     return expression.split('until')[1].trim();
                 }
-                return expression.split('as')[1].trim();
+                return expression.split(' as ')[1].trim();
             }
 
             // Finds all elements with repeatable elements
@@ -727,6 +745,30 @@ Special Credits to the authors of DomReady libarary!
 
             }
 
+
+        }
+        $requires(scopeObj, scopeElement) {
+
+            // Turns a string in array notation into an actual array
+            let arrify = (stx) => {
+                return JSON.parse(stx.replace(/'/g, '"'));
+            }
+
+            // Finds all elements with xrequired attribute
+            let allWithRequireElements = scopeElement.querySelectorAll('[xrequire]');
+
+            for (var i = 0; i < allWithRequireElements.length; i++) {
+                let withRequireElement = allWithRequireElements[i];
+                let requireStx = strawberry.$$core.$getXValue(withRequireElement, 'xrequire');
+                let required = arrify(requireStx);
+                let hasMetRequired = required.every(element => {
+                    return scopeObj.$deps.includes(element);
+                });
+                if (!hasMetRequired) {
+                    withRequireElement.innerHTML = '';
+                    withRequireElement.outerHTML = '<!-- strawberry.js: ' + withRequireElement.outerHTML + ' -->';
+                }
+            }
 
         }
         $shows(scopeObj, scopeElement) {
@@ -897,6 +939,23 @@ Special Credits to the authors of DomReady libarary!
         }
         $public() {
             return {
+                $block: (elementName = null, callback = null) => {
+                    if (elementName === null) {
+                        return {
+                            init: ($scope, service) => {
+                                this.$scope = $scope;
+                                return service;
+                            }
+                        }
+                    }
+                    let e = this.$scope.$app;
+                    let blockName = '@' + elementName;
+                    let blockOfElements = strawberry.$$core.$getElementsFromScope(this.$scope.$name, 'xblock="' + blockName + '"');
+                    for (var i = 0; i < blockOfElements.length; i++) {
+                        let elementBlock = blockOfElements[i];
+                        callback((new Element(elementBlock)), i);
+                    }
+                },
                 $component: (componentName = null) => {
                     if (componentName === null) {
                         return {
@@ -946,6 +1005,7 @@ Special Credits to the authors of DomReady libarary!
 
                     let e = this.$scope.$app;
                     let willDisable = isEnable ?? true;
+                    enableName = '@' + enableName;
 
                     if (willDisable) {
                         let allDisabledInputs = strawberry.$$core.$getElementsFromScope(this.$scope.$name, 'xdisable="' + enableName + '"');
@@ -974,6 +1034,7 @@ Special Credits to the authors of DomReady libarary!
 
                     let e = this.$scope.$app;
                     let willEnable = isEnable ?? true;
+                    enableName = '@' + enableName;
 
                     if (willEnable) {
                         let allDisabledInputs = strawberry.$$core.$getElementsFromScope(this.$scope.$name, 'xdisable="' + enableName + '"');
@@ -1000,6 +1061,7 @@ Special Credits to the authors of DomReady libarary!
                         }
                     }
 
+                    elementName = '@' + elementName;
 
                     let hide = (element) => {
                         // Check if the current state of the element is true (means SHOWING)
@@ -1052,6 +1114,8 @@ Special Credits to the authors of DomReady libarary!
 
                     let e = this.$scope.$app;
 
+                    patchName = '@' + patchName;
+
                     if (this.$scope.$patchables.hasOwnProperty(patchName)) {
 
                         // Finds all patchable element
@@ -1103,6 +1167,8 @@ Special Credits to the authors of DomReady libarary!
                     }
 
                     let e = this.$scope.$app;
+                    elementName = '@' + elementName;
+
                     let show = (element) => {
                         // Check if the current state of the element is false (means HIDDEN)
                         if (!this.$scope.$hidden[elementName].state) {
@@ -1135,6 +1201,7 @@ Special Credits to the authors of DomReady libarary!
                         }
                     }
                     let e = this.$scope.$app;
+                    switchName = '@' + switchName;
                     return {
                         when: (whenName) => {
                             window[e].$scopes[this.$scope.$name].$services.$switchers().$on(this.$scope, switchName, whenName);
@@ -1156,6 +1223,7 @@ Special Credits to the authors of DomReady libarary!
                     }
 
                     let e = this.$scope.$app;
+                    hidableName = '@' + hidableName;
 
                     let hideService = window[e].$scopes[this.$scope.$name].$services.$public()['$hide'];
                     let $hide = hideService().init(this.$scope, hideService);
@@ -1213,6 +1281,9 @@ Special Credits to the authors of DomReady libarary!
         removeClass(className) {
             this.$element.classList.remove(className);
         }
+        data(datasetName) {
+            return this.$element.dataset[datasetName] ?? null;
+        }
         toggleClass(className) {
             let classes = this.listClass();
             for (var i = 0; i < classes.length; i++) {
@@ -1228,6 +1299,7 @@ Special Credits to the authors of DomReady libarary!
     class Injector {
         constructor(funcString) {
             this.funcString = funcString.toString();
+            this.args = [];
         }
         scope(scopeObj) {
             this.scopeObj = scopeObj;
@@ -1276,6 +1348,7 @@ Special Credits to the authors of DomReady libarary!
                 }
                 if (strawberry.$factory.hasOwnProperty(arg)) {
                     argObj.push(strawberry.$factory[arg]);
+                    this.args.push(arg);
                     continue;
                 }
                 if (strawberry.$service.hasOwnProperty(arg)) {
@@ -1288,6 +1361,7 @@ Special Credits to the authors of DomReady libarary!
                     } else {
                         argObj.push({});
                     }
+                    this.args.push(arg);
                     continue;
                 }
                 if (strawberry.debug) {
@@ -1295,7 +1369,9 @@ Special Credits to the authors of DomReady libarary!
                 }
             }
             return argObj;
-
+        }
+        getResolvedArgs() {
+            return this.args;
         }
     }
     /**
@@ -1546,6 +1622,7 @@ Special Credits to the authors of DomReady libarary!
             this.$name = scopeName;
             this.$hidden = {};
             this.$togglers = {};
+            this.$deps = [];
             this.$switchers = {};
             this.$patchables = {};
             this.$renderables = {};
@@ -1565,6 +1642,7 @@ Special Credits to the authors of DomReady libarary!
                     }
                 }
                 if (strawberry.$factory.hasOwnProperty(preset)) {
+                    this.$deps.push(preset);
                     this[preset] = strawberry.$factory[preset];
                 }
             }
@@ -1664,6 +1742,9 @@ Special Credits to the authors of DomReady libarary!
 
                     let injector = new Injector(callback);
                     let args = injector.scope(window[e].$scopes[scopeName]).resolve();
+
+                    // Registering injected dependency
+                    window[e].$scopes[scopeName].$deps.push(...injector.getResolvedArgs());
 
                     // Calls the callback function required when creating a scope
                     callback(...args);
