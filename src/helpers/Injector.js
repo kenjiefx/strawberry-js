@@ -57,9 +57,14 @@ class Injector {
                 let func = strawberry.$service[arg];
                 if (func instanceof Function) {
                     let injector = new Injector(func);
-                    let args = injector.scope(this.scopeObj).resolve();
-                    let returnedObj = func(...args);
-                    argObj.push(returnedObj);
+                    if (!singleObjs.hasOwnProperty(arg)) {
+                        let args = injector.scope(this.scopeObj).resolve();
+                        let returnedObj = func(...args);
+                        argObj.push(returnedObj);
+                        singleObjs[arg] = returnedObj;
+                    } else {
+                        argObj.push(singleObjs[arg]);
+                    }
                 } else {
                     argObj.push({});
                 }

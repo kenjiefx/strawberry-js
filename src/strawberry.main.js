@@ -7,6 +7,8 @@ Created by Ken Terrado, 2021
 
 var strawberry = window.strawberry = {};
 
+var singleObjs = {};
+
 // Debugging option, allows Strawberry.js to print errors during execution
 strawberry.debug = false;
 strawberry.debugger=()=>{

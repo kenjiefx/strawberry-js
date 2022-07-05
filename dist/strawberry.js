@@ -1,6 +1,6 @@
 /*
 ==========================================
-Strawberry JS (Beta Version 1.2.1)
+Strawberry JS (Beta Version 1.2.4)
 Created by Ken Terrado, 2022
 
 Copyright (c) 2022 Ken Terrado
@@ -1355,9 +1355,14 @@ Special Credits to the authors of DomReady libarary!
                     let func = strawberry.$service[arg];
                     if (func instanceof Function) {
                         let injector = new Injector(func);
-                        let args = injector.scope(this.scopeObj).resolve();
-                        let returnedObj = func(...args);
-                        argObj.push(returnedObj);
+                        if (!singleObjs.hasOwnProperty(arg)) {
+                            let args = injector.scope(this.scopeObj).resolve();
+                            let returnedObj = func(...args);
+                            argObj.push(returnedObj);
+                            singleObjs[arg] = returnedObj;
+                        } else {
+                            argObj.push(singleObjs[arg]);
+                        }
                     } else {
                         argObj.push({});
                     }
@@ -1657,6 +1662,8 @@ Special Credits to the authors of DomReady libarary!
     */
 
     var strawberry = window.strawberry = {};
+
+    var singleObjs = {};
 
     // Debugging option, allows Strawberry.js to print errors during execution
     strawberry.debug = false;
