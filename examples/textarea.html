@@ -18,9 +18,21 @@
 
     <script type="text/javascript">
         const app = strawberry.create('app');
-        app.component('MyComponent',function($scope){
+        app.service('TestCall',function(){
+            return {
+                create: function(){
+                    return new Promise(function(resolve,reject){
+                        resolve('this is returned from a promise')
+                    })
+                }
+                
+            }
+        });
+        app.component('MyComponent',async function($scope,TestCall){
             $scope.message = 'Hello World!';
-            $scope.updateDescription=()=>{
+            $scope.updateDescription=async ()=>{
+                let returned = await TestCall.create()
+                console.log(returned)
                 console.log($scope.description)
             }
         });
