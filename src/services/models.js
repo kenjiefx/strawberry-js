@@ -72,6 +72,21 @@ $models(renderObj,renderElement){
             });
         }
 
+        // <textarea>
+        if (modelElement.tagName==='TEXTAREA') {
+            (resolvedObject===undefined) ?
+                assign_Value(renderObj,modelExpression,modelElement.value) :
+                modelElement.value = resolvedObject
+                
+            modelElement.addEventListener('change',function(){
+                assign_Value(
+                    renderObj,
+                    modelExpression,
+                    (ModelValueStringType) ? modelElement.value : modelElement.checked
+                );
+            });
+        }
+
     }
 
 }
