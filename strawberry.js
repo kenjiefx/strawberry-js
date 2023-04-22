@@ -1,6 +1,6 @@
 /*
 ==========================================
-Strawberry JS (Beta Version 1.0.0)
+Strawberry JS (Beta Version 1.0.1)
 MIT License
 Copyright (c) 2022 Kenjie Terrado
 
@@ -492,6 +492,21 @@ Special Credits to the amazing authors of DomReady libarary!
                         modelElement.value = resolvedObject
                 }
     
+                modelElement.addEventListener('change',function(){
+                    assign_Value(
+                        renderObj,
+                        modelExpression,
+                        (ModelValueStringType) ? modelElement.value : modelElement.checked
+                    );
+                });
+            }
+    
+            // <textarea>
+            if (modelElement.tagName==='TEXTAREA') {
+                (resolvedObject===undefined) ?
+                    assign_Value(renderObj,modelExpression,modelElement.value) :
+                    modelElement.value = resolvedObject
+                    
                 modelElement.addEventListener('change',function(){
                     assign_Value(
                         renderObj,
@@ -1495,4 +1510,4 @@ Special Credits to the amazing authors of DomReady libarary!
         }
     
     });
-    })();
+})();
