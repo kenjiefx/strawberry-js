@@ -36,7 +36,8 @@ The `$scope` is an object that binds into the placeholders in your component HTM
     const app = strawberry.create('app')
     app.component('ProfileCard',($scope)=>{
         $scope.printMessage=()=>{
-        return 'Hello world!'
+            return 'Hello world!'
+        }
     })
 </script>
 <section xstrawberry="app">
@@ -45,3 +46,30 @@ The `$scope` is an object that binds into the placeholders in your component HTM
     </div>
 </section>
 ```
+Note that the scope does not bleed out from its component. The `$scope` object facilitates data binding by allowing you to define variables and properties that hold data within the component. These variables can be accessed and utilized in the associated HTML view. 
+
+The `$scope` can be bound to functions, objects, or variables. Within the placeholders, you can also perform operations. 
+```
+<script type="text/javascript">
+    const app = strawberry.create('app')
+    app.component('ProfileCard',($scope)=>{
+        $scope.printMessage=()=>{
+            return 'Hello world!'
+        }
+        $scope.user = {
+            firstName: 'John'
+        }
+        $scope.age = 24
+    })
+</script>
+<section xstrawberry="app">
+    <div xcomponent="@ProfileCard">
+        {{message()}} // Prints "Hello world!"
+        {{user.firstName}} // Prints "John"
+        {{age+2}} // Prints "26"
+    </div>
+</section>
+```
+#### Change Detection 
+StrawberryJS does not have automatic change detection. This means that changes to the $scope object will not automatically trigger updates in the HTML view. Instead, you are in control of when to update the UI by manually calling the $patch() function which will be discussed later in this article. 
+
