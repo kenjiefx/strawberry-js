@@ -11,4 +11,4 @@
 **/
 
 define('ROOT',__DIR__);
-require ROOT.'/examples/index.php';
+require ROOT.'/examples/router.php';

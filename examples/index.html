@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <title>Strawberry JS Examples</title>
+        <script type="text/javascript" src="strawberry.js"></script>
+        <script type="text/javascript">
+            const app1 = strawberry.create('MyApp1');
+        </script>
+    </head>
+    <body>
+        <div xstrawberry="MyApp1">
+            
+        </div>
+        <template xstrawberry="MyApp1">
+            <div>hello world!</div>
+            <section xcomponent="@ProfileCard"></section>
+            <section xcomponent="@ProfileCard"></section>
+            <article xcomponent="@Header"></article>
+        </template>
+        <template xcomponent="@ProfileCard">
+            {{name}}
+            <div xcomponent="@Header"></div>
+            <div xcomponent="@Header"></div>
+        </template>
+        <template xcomponent="@Header">
+            This is the header
+        </template>
+    </body>
+</html>
