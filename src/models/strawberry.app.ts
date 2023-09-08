@@ -1,3 +1,4 @@
+import { ComponentLibrary, ComponentRegistry } from "./component"
 import { DomImplementationWrapper } from "./dom.implementation.wrapper"
 
 export type StrawberryAppConfig = {
@@ -13,6 +14,12 @@ export class StrawberryApp {
     private config: StrawberryAppConfig
     private id: number
     private domHtml: DomImplementationWrapper
+    private registry: {
+        component: ComponentRegistry
+    }
+    private library: {
+        component: ComponentLibrary
+    }
     constructor({id, name,config}:{
         id: number
         name: string,
@@ -21,6 +28,12 @@ export class StrawberryApp {
         this.id = id
         this.name = name
         this.domHtml = new DomImplementationWrapper(name)
+        this.registry = {
+            component: new ComponentRegistry()
+        }
+        this.library = {
+            component: new ComponentLibrary()
+        }
         if (config===undefined) {
             this.config = {
                 prefix: 'x'
@@ -46,5 +59,11 @@ export class StrawberryApp {
     }
     getAppHtmlBody(){
         return this.domHtml.implementation.body
+    }
+    getRegistry(){
+        return this.registry
+    }
+    getLibrary(){
+        return this.library
     }
 }

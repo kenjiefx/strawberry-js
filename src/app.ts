@@ -1,5 +1,7 @@
-import { getAppInstances, bootComponentTemplates } from "./helpers/boot.helper"
+import { COMPONENT_ELEMENT_ATTR } from "./helpers/attributes"
+import { getAppInstances, bootComponentTemplates, assignComponentHandler } from "./helpers/boot.helper"
 import { DOMHelper } from "./helpers/domready"
+import { StrawberryElement } from "./models/element"
 import { StrawberryApp, StrawberryAppConfig } from "./models/strawberry.app"
 
 const BootableApps:Array<StrawberryApp> = []
@@ -10,8 +12,11 @@ const strawberry = window['strawberry'] = {
         if (config!==undefined) appInstance.setConfig(config)
         BootableApps.push(appInstance)
         return {
-            component:()=>{
-
+            component:(name:string,handler:()=>any)=>{
+                appInstance.getLibrary().component.registerHandler({
+                    componentName: '@'+name,
+                    handler: handler
+                })
             },
             factory:()=>{
 
@@ -24,21 +29,62 @@ const strawberry = window['strawberry'] = {
 }
 
 DOMHelper.ready(()=>{
-    BootableApps.forEach((appInstance)=>{
-        const [appElement,templateElement] = getAppInstances(appInstance)
+    BootableApps.forEach(async (appInstance)=>{
+        try {
+            const [appElement,templateElement] = getAppInstances(appInstance)
 
-        /** We'll add the app template HTML content to the appInstance object */
-        appInstance.setAppHtmlBody(templateElement.innerHTML)
+            /** We'll add the App Template HTML content to the appInstance object */
+            appInstance.setAppHtmlBody(templateElement.innerHTML)
 
-        let components = templateElement.content.querySelectorAll('[xcomponent]')
-        let componentId = 0
-        for (let i = 0; i < components.length; i++) {
-            const component = components[i]
-            const xid = appInstance.getId().toString()+'.'+(componentId++).toString()
-            component.setAttribute('xid',xid)
-            component.innerHTML = bootComponentTemplates(xid,component,appInstance)
+            /** Compiling all components in the App Template, and their dependencies.*/
+            let componentEls = appInstance.getAppHtmlBody().querySelectorAll('[xcomponent]')
+            let componentId  = 0
+
+            for (let i = 0; i < componentEls.length; i++) {
+
+                /** Component Element */
+                const componentEl   = componentEls[i]
+                const componentName = StrawberryElement.getXValue(componentEl,appInstance.getConfig().prefix,COMPONENT_ELEMENT_ATTR)
+
+                /** Component IDs would have to be embedded to the xid attribute */
+                const xid = appInstance.getId().toString()+'.'+(componentId++).toString()
+                componentEl.setAttribute('xid',xid)
+
+                /** 
+                 * Retrieving component templates, as well as the templates of their dependencies,
+                 * and the dependencies of their dependencies.
+                 */
+                componentEl.innerHTML = await bootComponentTemplates({
+                    componentId: xid,
+                    component: componentEl,
+                    appInstance: appInstance,
+                    componentTree: [componentName]
+                })
+            }
+
+            const componentObjects = appInstance.getRegistry().component.getRegistry()
+            for (const componentId in componentObjects) {
+                await assignComponentHandler({
+                    componentObject: componentObjects[componentId],
+                    appInstance: appInstance
+                })
+            }
+
+            // console.log(appInstance.getRegistry().component)
+            console.log(appInstance.getLibrary().component)
+
+            //console.log(appInstance.getAppHtmlBody().innerHTML)
+
+            /**
+             * @NOTE Temporary only! 
+             * Will need to see how we can transfer properly from DOM implementation
+             * to actual HTML
+             */
+            appElement.innerHTML = appInstance.getAppHtmlBody().innerHTML
+
+        } catch (error) {
+            console.error(error)
         }
-        console.log(templateElement.innerHTML)
     })
 })
 

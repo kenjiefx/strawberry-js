@@ -3,7 +3,10 @@
         <title>Strawberry JS Examples</title>
         <script type="text/javascript" src="strawberry.js"></script>
         <script type="text/javascript">
-            const app1 = strawberry.create('MyApp1');
+            const app = strawberry.create('MyApp1');
+            app.component('ProfileCard',($scope,Header)=>{
+                
+            })
         </script>
     </head>
     <body>
@@ -23,6 +26,10 @@
         </template>
         <template xcomponent="@Header">
             This is the header
+            <section xcomponent="@Footer"></section>
+        </template>
+        <template xcomponent="@Footer">
+            <!-- <section xcomponent="@ProfileCard"></section> -->
         </template>
     </body>
 </html>
