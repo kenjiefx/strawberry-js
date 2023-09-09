@@ -1,3 +1,5 @@
+import { ScopeObject } from "./scope"
+
 export class ComponentRegistry {
     private registry: {[key:string]:StrawberryComponent}
     constructor(){
@@ -14,7 +16,7 @@ export class ComponentRegistry {
 export class ComponentLibrary {
     registry: {[componentName:string]:{
         template: string|null,
-        handler: ()=>any|null
+        handler: (...args: any[])=>any|null
     }}
     constructor(){
         this.registry = {}
@@ -53,9 +55,17 @@ export class ComponentLibrary {
 export class StrawberryComponent {
     private id:string 
     private name:string 
+    private childNames: Array<string>
+    private childIds: Array<string>
+    private handler: {[key:string]:any} | string | boolean | number | Array<unknown> | null
+    private scopeObject: ScopeObject | null
     constructor(){
         this.id = 'unset'
         this.name = 'unset'
+        this.childNames = []
+        this.childIds = []
+        this.handler = null 
+        this.scopeObject = null
     }
     setId(id:string){
         this.id = id
@@ -65,7 +75,42 @@ export class StrawberryComponent {
         this.name = name
         return this
     }
+    getId(){
+        return this.id
+    }
     getName() {
         return this.name
+    }
+    addChildName(name:string){
+        if (!this.childNames.includes(name)) {
+            this.childNames.push(name)
+        }
+    }
+    addChildId(id:string){
+        if (!this.childIds.includes(id)) {
+            this.childIds.push(id)
+        }
+    }
+    getChildNames(){
+        return this.childNames
+    }
+    getChildIds(){
+        return this.childIds
+    }
+    setHandler(handler:{[key:string]:any} | string | boolean | number | Array<unknown>){
+        if (this.handler===null) {
+            this.handler = handler
+        }
+    }
+    getHandler(){
+        return this.handler
+    }
+    setScopeObject(scopeObject:ScopeObject){
+        if (this.scopeObject===null) {
+            this.scopeObject = scopeObject
+        }
+    }
+    getScopeObject(){
+        return this.scopeObject
     }
 }

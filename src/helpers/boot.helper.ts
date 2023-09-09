@@ -3,7 +3,7 @@ import { StrawberryComponent } from "../models/component";
 import { StrawberryElement } from "../models/element";
 import { ScopeObject } from "../models/scope";
 import { StrawberryApp } from "../models/strawberry.app";
-import { COMPONENT_ELEMENT_ATTR, SCOPE_ARGUMENT_KEY } from "./attributes";
+import { AttributeHelper, COMPONENT_ELEMENT_ATTR, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
 import { createComponentId } from "./id.generators";
 
 /**
@@ -13,8 +13,12 @@ import { createComponentId } from "./id.generators";
  */
 export function getAppInstances(appInstance:StrawberryApp):[Element,HTMLTemplateElement]{
     try {
-        const selector     = `[${appInstance.getConfig().prefix}strawberry="${appInstance.getName()}"]`
-        const domInstances = document.querySelectorAll(selector)
+        const selector = AttributeHelper.makeXAttrWithValue({
+            attributeName: STRAWBERRY_ATTRIBUTE,
+            appInstance: appInstance,
+            value: appInstance.getName()
+        })
+        const domInstances = document.querySelectorAll(`[${selector}]`)
 
         if (domInstances.length===0) {
             throw new Error(`strawberry.js: [BootError] Unable to find element ${selector}.`)
@@ -48,9 +52,18 @@ export function bootComponentTemplates({componentId,component,appInstance,compon
             let compiledComponentHtml = ''
 
             // First, we'll check if component has declared template
-            const componentName = StrawberryElement.getXValue(component,appInstance.getConfig().prefix,COMPONENT_ELEMENT_ATTR)
+            const componentName = AttributeHelper.getXValueFromElAttr({
+                element: component,
+                prefix: appInstance.getConfig().prefix,
+                attributeName: COMPONENT_ELEMENT_ATTR
+            })
             
-            const componentSelector         = `template[x${COMPONENT_ELEMENT_ATTR}="${componentName}"]`
+            const componentAttribute = AttributeHelper.makeXAttrWithValue({
+                attributeName: COMPONENT_ELEMENT_ATTR,
+                appInstance: appInstance,
+                value: componentName
+            })
+            const componentSelector         = `template[${componentAttribute}]`
             const componentTemplateElements = document.querySelectorAll(componentSelector)
 
             if (componentTemplateElements.length===0) {
@@ -81,14 +94,25 @@ export function bootComponentTemplates({componentId,component,appInstance,compon
             })
 
             /** Retrieving and processing of child components **/
-            const childComponents = componentImplementation.querySelectorAll('[xcomponent]')
+            const selector = AttributeHelper.makeXAttr({
+                attributeName: COMPONENT_ELEMENT_ATTR,
+                appInstance: appInstance
+            })
+            const childComponents = componentImplementation.querySelectorAll(`[${selector}]`)
             for (let i = 0; i < childComponents.length; i++) {
 
                 const childComponent     = childComponents[i]
-                const childComponentName = StrawberryElement.getXValue(childComponent,appInstance.getConfig().prefix,COMPONENT_ELEMENT_ATTR)
+                const childComponentName = AttributeHelper.getXValueFromElAttr({
+                    element: childComponent,
+                    prefix: appInstance.getConfig().prefix,
+                    attributeName: COMPONENT_ELEMENT_ATTR
+                })
 
                 const childComponentId   = createComponentId(componentId,i.toString())
                 childComponent.setAttribute('xid',childComponentId)
+
+                componentObject.addChildName(childComponentName)
+                componentObject.addChildId(childComponentId)
                 
                 if (componentTree.includes(childComponentName)) {
                     throw new Error(`strawberry.js: [BootError] Circular dependency in component "${childComponentName}" detected: ${JSON.stringify(componentTree)}`)
@@ -113,10 +137,20 @@ export function bootComponentTemplates({componentId,component,appInstance,compon
     
 }
 
+function parseHandlerArguments(){
 
-export function assignComponentHandler({componentObject,appInstance}:{componentObject:StrawberryComponent,appInstance:StrawberryApp}):Promise<void>{
-    return new Promise((resolve,reject)=>{
+}
+
+/** This is where callback functions to components are being executed */
+export function bootComponentHandler({componentObject,appInstance}:{componentObject:StrawberryComponent,appInstance:StrawberryApp}):Promise<void>{
+    return new Promise(async (resolve,reject)=>{
         try {
+
+            if (componentObject.getHandler()!==null) {
+                resolve(null)
+                return 
+            }
+
             const componentName = componentObject.getName()
             const componentLibrary = appInstance.getLibrary().component
             
@@ -138,20 +172,95 @@ export function assignComponentHandler({componentObject,appInstance}:{componentO
             }
 
             let argumentExpression = matchedFn[0]
-            let allArguments = argumentExpression.split(',')
+            let allArguments       = argumentExpression.split(',')
+
+            const allChildComponentNames = componentObject.getChildNames().map(childName=>childName.substring(1,childName.length))
             
             const injectableArguments = []
+
             for (let i = 0; i < allArguments.length; i++) {
                 const argument = allArguments[i]
                 if (argument===SCOPE_ARGUMENT_KEY) {
                     injectableArguments.push(scopeObject)
-                    continue;
+                    componentObject.setScopeObject(scopeObject)
+                    continue
                 }
                 if (argument.charAt(0)==='$') {
-                    continue;
+                    continue
                 }
+
+                /** @TODO Service injection */
+
+                /** @TODO Factory injection */
+
+                /** Component Injection */
+                if (!allChildComponentNames.includes(argument)) {
+                    throw new Error(`strawberry.js: [BootError] @${argument} is not a child component of ${componentName}`)
+                }
+                /** Get all children with that child component names */
+                const componentElementImplementation = AttributeHelper.getElementByXId({
+                    element: appInstance.getAppHtmlBody(),
+                    appInstance: appInstance,
+                    xid: componentObject.getId()
+                })
+                const childXids = AttributeHelper.getXidsOfChildComponentByName({
+                    element: componentElementImplementation,
+                    appInstance: appInstance,
+                    componentObject: componentObject,
+                    childComponentName: argument
+                })
+
+                const wrapper:{[key:string]:StrawberryComponent} = {}
+                for (let n = 0; n < childXids.length; n++) {
+                    const childXid = childXids[n]
+                    const childComponentObject = appInstance.getRegistry().component.getRegistry()[childXid]
+                    await bootComponentHandler({
+                        componentObject: childComponentObject,
+                        appInstance: appInstance
+                    })
+                    wrapper[childXid] = childComponentObject
+                }
+                const componentProxy = new Proxy(wrapper, {
+                    get: function get(target, name) {
+                        return function wrapper() {
+                            // const args = Array.prototype.slice.call(arguments)
+                            const returns = []
+                            for (const xid in target) {
+                                const componentInstance = target[xid]
+                                const handler = componentInstance.getHandler()
+                                if (typeof handler==='string'
+                                || typeof handler==='number'
+                                || typeof handler==='boolean'
+                                ) {
+                                    returns.push(handler)
+                                    continue
+                                }
+                                if (typeof handler==='object') {
+                                    if (handler.hasOwnProperty(name)) {
+                                        const handlerInstance = handler[name]
+                                        if (handlerInstance instanceof Function) {
+                                            returns.push(handlerInstance())
+                                        } else {
+                                            returns.push(handlerInstance)
+                                        }
+                                        continue
+                                    } else {
+                                        console.warn(`strawberry.js [ComponentError] Calling undefined member property or method "${name.toString()}" from component "${componentInstance.getName()}"`)
+                                    }
+                                }
+                            }
+                            return returns[0]
+                        }
+                    }
+                })
                 // Proxy of the component object to be injected
+                injectableArguments.push(componentProxy)
             }
+
+            const handler = componentHandler(...injectableArguments)
+            componentObject.setHandler(handler)
+
+            resolve(null)
 
             
         } catch (error) {

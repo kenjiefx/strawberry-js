@@ -5,7 +5,21 @@
         <script type="text/javascript">
             const app = strawberry.create('MyApp1');
             app.component('ProfileCard',($scope,Header)=>{
-                
+                $scope.firstName = 'Kenjie'
+            })
+            app.component('Header',($scope)=>{
+                return {
+                    test:()=>{
+                        console.log('Test is accurate!')
+                        return 'aaaa'
+                    }
+                }
+            })
+            app.component('Footer',($scope)=>{
+                $scope.users = [
+                    {firstName:'Kenjie'},
+                    {firstName:'Vince'}
+                ]
             })
         </script>
     </head>
@@ -20,7 +34,8 @@
             <article xcomponent="@Header"></article>
         </template>
         <template xcomponent="@ProfileCard">
-            {{name}}
+            {{firstName}}
+            
             <div xcomponent="@Header"></div>
             <div xcomponent="@Header"></div>
         </template>
@@ -29,7 +44,9 @@
             <section xcomponent="@Footer"></section>
         </template>
         <template xcomponent="@Footer">
-            <!-- <section xcomponent="@ProfileCard"></section> -->
+            <div xrepeat="users as user">
+                <span class="index={{$index}}">test</span>
+            </div>
         </template>
     </body>
 </html>

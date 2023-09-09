@@ -1,6 +1,10 @@
-import { COMPONENT_ELEMENT_ATTR } from "./helpers/attributes"
-import { getAppInstances, bootComponentTemplates, assignComponentHandler } from "./helpers/boot.helper"
+import { AttributeHelper, COMPONENT_ELEMENT_ATTR } from "./helpers/attributes"
+import { getAppInstances, bootComponentTemplates, bootComponentHandler } from "./helpers/boot.helper"
 import { DOMHelper } from "./helpers/domready"
+import { cleanChildComponents, copyBindElement, createTemporaryElement } from "./helpers/element.helpers"
+import { sortComponentIds } from "./helpers/id.generators"
+import { renderHelper } from "./helpers/render"
+import { ComponentRegistry } from "./models/component"
 import { StrawberryElement } from "./models/element"
 import { StrawberryApp, StrawberryAppConfig } from "./models/strawberry.app"
 
@@ -44,7 +48,12 @@ DOMHelper.ready(()=>{
 
                 /** Component Element */
                 const componentEl   = componentEls[i]
-                const componentName = StrawberryElement.getXValue(componentEl,appInstance.getConfig().prefix,COMPONENT_ELEMENT_ATTR)
+                const componentName = AttributeHelper.getXValueFromElAttr({
+                    element: componentEl,
+                    prefix: appInstance.getConfig().prefix,
+                    attributeName: COMPONENT_ELEMENT_ATTR
+                })
+                
 
                 /** Component IDs would have to be embedded to the xid attribute */
                 const xid = appInstance.getId().toString()+'.'+(componentId++).toString()
@@ -63,17 +72,54 @@ DOMHelper.ready(()=>{
             }
 
             const componentObjects = appInstance.getRegistry().component.getRegistry()
+            const componentIdsList = []
             for (const componentId in componentObjects) {
-                await assignComponentHandler({
+                componentIdsList.push(componentId)
+                await bootComponentHandler({
                     componentObject: componentObjects[componentId],
                     appInstance: appInstance
                 })
             }
 
-            // console.log(appInstance.getRegistry().component)
-            console.log(appInstance.getLibrary().component)
+            const sortedKeys = sortComponentIds(componentIdsList)
+            const sortedComponentRegistry = new ComponentRegistry
+            let b = 0
+            sortedKeys.forEach(key => {
+                sortedComponentRegistry.register({key:b+'.'+key,component:componentObjects[key]})
+                b++
+            })
 
-            //console.log(appInstance.getAppHtmlBody().innerHTML)
+            /** Rendering phase */
+            for (const sortedComponentId in sortedComponentRegistry.getRegistry()) {
+                const componentId = (sortedComponentRegistry.getRegistry())[sortedComponentId].getId()
+                const targetElement = AttributeHelper.getElementByXId({
+                    element: appInstance.getAppHtmlBody(),
+                    appInstance: appInstance,
+                    xid: componentId
+                })
+                const temporaryElement = createTemporaryElement()
+                temporaryElement.innerHTML = targetElement.innerHTML
+                cleanChildComponents({
+                    component: temporaryElement,
+                    childComponentIds: componentObjects[componentId].getChildIds(),
+                    appInstance: appInstance
+                })
+                await renderHelper({
+                    targetElement: temporaryElement,
+                    componentObject: componentObjects[componentId],
+                    appInstance: appInstance
+                })
+                // targetElement.innerHTML = ''
+                // copyBindElement({
+                //     bindFrom: temporaryElement,
+                //     bindTo: targetElement
+                // })
+                console.log('asdasdasd')
+                console.log(temporaryElement.innerHTML)
+            }
+
+            
+
 
             /**
              * @NOTE Temporary only! 
