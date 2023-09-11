@@ -4,8 +4,9 @@ import { StrawberryElement } from "../models/element";
 import { ScopeObject } from "../models/scope";
 import { StrawberryApp } from "../models/strawberry.app";
 import { blocksService } from "../services/blocks";
+import { disableService } from "../services/disable";
 import { enableService } from "../services/enable";
-import { AttributeHelper, BLOCK_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, ENABLE_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
+import { AttributeHelper, BLOCK_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, DISABLE_ARGUMENT_KEY, ENABLE_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
 import { createComponentId } from "./id.generators";
 
 /**
@@ -189,6 +190,11 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                         case ENABLE_ARGUMENT_KEY: 
                             injectableArguments.push((elementName:string)=>{
                                 return enableService(componentObject,appInstance,elementName)
+                            })
+                        break;
+                        case DISABLE_ARGUMENT_KEY: 
+                            injectableArguments.push((elementName:string)=>{
+                                return disableService(componentObject,appInstance,elementName)
                             })
                         break;
                         default: 

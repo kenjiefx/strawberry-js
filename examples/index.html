@@ -18,9 +18,13 @@
                     $enable('Registration/Input/Standard')
                 }
             })
-            app.component('Header',($scope)=>{
+            app.component('Header',($scope,$disable)=>{
                 $scope.firstName = 'Mike'
                 $scope.fontColor = 'red'
+                $scope.disableSelect=(button)=>{
+                    console.log(button)
+                    $disable('Countries/Select/List')
+                }
                 return {
                     test:()=>{
                         console.log('Test is accurate!')
@@ -53,6 +57,7 @@
             <section xcomponent="@ProfileCard"></section>
             <article xcomponent="@Header"></article>
         </template>
+
         <template xcomponent="@ProfileCard">
             <div xblock="@ProfileCard/SampleBlock">
                 {{firstName}} 
@@ -70,12 +75,19 @@
             <header xcomponent="@Header"></header>
             
         </template>
+
         <template xcomponent="@Header">
             This is the header {{firstName}}
             <input xdisable="Registration/Input/Standard" xmodel="firstName" type="text">
             <div class="" xstyle="fontColor">This text should be color red</div>
             <section xcomponent="@Footer"></section>
+            <select xenable="Countries/Select/List">
+                <option value="Philippines">The Philippines</option>
+                <option value="The USA">The USA</option>
+            </select>
+            <button xclick="disableSelect()">Disable The Select</button>
         </template>
+
         <template xcomponent="@Footer">
             <div xrepeat="users as user">
                 <span xif="user.firstName=='Kenjie'">Yes,this repeat is Kenjie</span>

@@ -1,6 +1,6 @@
 import { StrawberryComponent } from "../models/component";
 import { StrawberryApp } from "../models/strawberry.app";
-import { AttributeHelper, DISABLE_ELEMENT_ATTR } from "./attributes";
+import { AttributeHelper, DISABLE_ELEMENT_ATTR, ENABLE_ARGUMENT_KEY, ENABLE_ELEMENT_ATTR } from "./attributes";
 
 export function enablersHelpers(targetElement:Element,componentObject:StrawberryComponent,appInstance:StrawberryApp):Promise<null>{
     return new Promise((resolve,reject)=>{
@@ -8,15 +8,14 @@ export function enablersHelpers(targetElement:Element,componentObject:Strawberry
             const allEnabledElements = AttributeHelper.getElementByXAttribute(
                 targetElement,
                 appInstance,
-                DISABLE_ELEMENT_ATTR
+                ENABLE_ELEMENT_ATTR
             )
             for (let i = 0; i < allEnabledElements.length; i++) {
-                const element = allEnabledElements[i]
-                if (!(element instanceof HTMLInputElement)) continue
+                const element = allEnabledElements[i] as HTMLInputElement
                 const elementName = AttributeHelper.getXValueFromElAttr(
                     element,
                     appInstance.getConfig().prefix,
-                    DISABLE_ELEMENT_ATTR
+                    ENABLE_ELEMENT_ATTR
                 )
                 if (null===componentObject.getNamedElementState(elementName)) {
                     componentObject.registerNamedElement(elementName,'enabled','')

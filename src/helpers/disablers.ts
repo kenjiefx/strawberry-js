@@ -11,8 +11,7 @@ export function disablersHelper(targetElement:Element,componentObject:Strawberry
                 DISABLE_ELEMENT_ATTR
             )
             for (let i = 0; i < allDisabledElements.length; i++) {
-                const element = allDisabledElements[i]
-                if (!(element instanceof HTMLInputElement)) continue
+                const element = allDisabledElements[i] as HTMLInputElement
                 const elementName = AttributeHelper.getXValueFromElAttr(
                     element,
                     appInstance.getConfig().prefix,
