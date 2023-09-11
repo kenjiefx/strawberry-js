@@ -20,51 +20,56 @@ export const CHANGE_EVENT_ATTR = 'change'
 export const TOUCH_EVENT_ATTR = 'touch'
 export const BLOCK_ELEMENT_ATTR = 'block'
 export const SCOPE_ARGUMENT_KEY = '$scope'
+export const BLOCK_ARGUMENT_KEY = '$block'
+export const ENABLE_ARGUMENT_KEY = '$enable'
 export const STRAWBERRY_ID_ATTR = 'id'
 export const REPEAT_REFERENCE_TOKEN = '$$index'
+export const LOCK_ID_ATTR_KEY = 'set'
+export const LOCK_ID_ATTR_VALUE = '@'
+export const EVENT_ELEMENT_ATTR = 'event'
 
 export class AttributeHelper {
     /**
      * Creates a component attribute with value. Example: `xcomponent="@ComponentName"`
      */
-    static makeComponentXAttr(args:{name:string,appInstance:StrawberryApp}){
-        return args.appInstance.getConfig().prefix + COMPONENT_ELEMENT_ATTR + '="@'+args.name+'"'
+    static makeComponentXAttr(name:string,appInstance:StrawberryApp){
+        return appInstance.getConfig().prefix + COMPONENT_ELEMENT_ATTR + '="@'+name+'"'
     }
     /**
      * Creates an attribute with any key. Example: `xsomekeyhere`
      */
-    static makeXAttr(args:{attributeName:string,appInstance:StrawberryApp}){
-        return args.appInstance.getConfig().prefix + args.attributeName
+    static makeXAttr(attributeName:string,appInstance:StrawberryApp){
+        return appInstance.getConfig().prefix + attributeName
     }
     /**
      * Creates an attribute with any key, with any value. Example: `xsomekeyhere="value"`
      */
-    static makeXAttrWithValue(args:{attributeName:string,appInstance:StrawberryApp,value:string}){
-        return args.appInstance.getConfig().prefix + args.attributeName + '="'+ args.value +'"'
+    static makeXAttrWithValue(attributeName:string,appInstance:StrawberryApp,value:string){
+        return appInstance.getConfig().prefix + attributeName + '="'+ value +'"'
     }
-    static getXValueFromElAttr(args:{element:Element,prefix:string,attributeName:string}){
-        const resolvedAttrName = args.prefix + args.attributeName
-        return args.element.getAttribute(resolvedAttrName)
+    static getXValueFromElAttr(element:Element,prefix:string,attributeName:string){
+        const resolvedAttrName = prefix + attributeName
+        return element.getAttribute(resolvedAttrName)
     }
-    static getElementByXId(args:{element:Element,appInstance:StrawberryApp,xid:string}){
-        const resolvedXidAttr = args.appInstance.getConfig().prefix + STRAWBERRY_ID_ATTR + '="' + args.xid + '"'
-        return args.element.querySelector(`[${resolvedXidAttr}]`)
+    static getElementByXId(element:Element,appInstance:StrawberryApp,xid:string){
+        const resolvedXidAttr = appInstance.getConfig().prefix + STRAWBERRY_ID_ATTR + '="' + xid + '"'
+        return element.querySelector(`[${resolvedXidAttr}]`)
     }
-    static getElementByXAttribute(args:{element:Element,appInstance:StrawberryApp,attributeName:string}){
-        const resolvedAttrName = this.makeXAttr({attributeName:args.attributeName,appInstance:args.appInstance})
-        return args.element.querySelectorAll(`[${resolvedAttrName}]`)
+    static getElementByXAttribute(element:Element,appInstance:StrawberryApp,attributeName:string){
+        const resolvedAttrName = this.makeXAttr(attributeName,appInstance)
+        return element.querySelectorAll(`[${resolvedAttrName}]`)
     }
-    static getXidsOfChildComponentByName(args:{element:Element,appInstance:StrawberryApp,componentObject:StrawberryComponent,childComponentName:string}):Array<string>{
-        if (!args.childComponentName.includes('@')) args.childComponentName = '@'+args.childComponentName
+    static getXidsOfChildComponentByName(element:Element,appInstance:StrawberryApp,componentObject:StrawberryComponent,childComponentName:string):Array<string>{
+        if (!childComponentName.includes('@')) childComponentName = '@'+childComponentName
         const resultXids = []
         // Making sure we are only getting direct siblings
-        const childIds = args.componentObject.getChildIds()
+        const childIds = componentObject.getChildIds()
         for (let i = 0; i < childIds.length; i++) {
             const childId = childIds[i];
-            const xidAttr = this.makeXAttrWithValue({attributeName:STRAWBERRY_ID_ATTR,appInstance:args.appInstance,value:childId})
-            const xidElement = args.element.querySelector(`[${xidAttr}]`)
-            const componentName = xidElement.getAttribute(args.appInstance.getConfig().prefix + COMPONENT_ELEMENT_ATTR)
-            if (componentName === args.childComponentName) {
+            const xidAttr = this.makeXAttrWithValue(STRAWBERRY_ID_ATTR,appInstance,childId)
+            const xidElement = element.querySelector(`[${xidAttr}]`)
+            const componentName = xidElement.getAttribute(appInstance.getConfig().prefix + COMPONENT_ELEMENT_ATTR)
+            if (componentName === childComponentName) {
                 resultXids.push(childId)
             }
         }

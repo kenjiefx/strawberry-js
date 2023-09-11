@@ -21,20 +21,20 @@ export class ComponentLibrary {
     constructor(){
         this.registry = {}
     }
-    registerTemplate({componentName,template}:{componentName:string,template:string}) {
+    registerTemplate(componentName:string,template:string) {
         this.createInstance(componentName)
         if (this.registry[componentName].template===null) {
             this.registry[componentName].template = template
         }
     }
-    registerHandler({componentName,handler}:{componentName:string,handler:()=>any}){
+    registerHandler(componentName:string,handler:()=>any){
         this.createInstance(componentName)
         if (this.registry[componentName].handler===null) {
             this.registry[componentName].handler = handler
         }
     }
     getTemplate(componentName:string){
-        if (!this.registry.hasOwnProperty[componentName]) return null
+        if (!this.registry.hasOwnProperty(componentName)) return null
         return this.registry[componentName].template
     }
     getHandler(componentName:string){
@@ -59,6 +59,7 @@ export class StrawberryComponent {
     private childIds: Array<string>
     private handler: {[key:string]:any} | string | boolean | number | Array<unknown> | null
     private scopeObject: ScopeObject | null
+    private namedElements: {[key:string]:{state:string|null,template:string}}
     constructor(){
         this.id = 'unset'
         this.name = 'unset'
@@ -66,6 +67,7 @@ export class StrawberryComponent {
         this.childIds = []
         this.handler = null 
         this.scopeObject = null
+        this.namedElements = {}
     }
     setId(id:string){
         this.id = id
@@ -112,5 +114,21 @@ export class StrawberryComponent {
     }
     getScopeObject(){
         return this.scopeObject
+    }
+    registerNamedElement(name:string,state:string,template:string){
+        if (this.namedElements.hasOwnProperty(name)) return null
+        if (state===null) return null
+        this.namedElements[name] = {
+            state: state,
+            template: template
+        }
+    }
+    getNamedElementState(name:string) {
+        if (!this.namedElements.hasOwnProperty(name)) return null
+        return this.namedElements[name].state
+    }
+    setNamedElementState(name:string,state:string) {
+        if (!this.namedElements.hasOwnProperty(name)) return
+        this.namedElements[name].state = state
     }
 }

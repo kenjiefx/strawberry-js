@@ -1,7 +1,7 @@
 import { AttributeHelper, COMPONENT_ELEMENT_ATTR } from "./helpers/attributes"
 import { getAppInstances, bootComponentTemplates, bootComponentHandler } from "./helpers/boot.helper"
 import { DOMHelper } from "./helpers/domready"
-import { cleanChildComponents, copyBindElement, createTemporaryElement } from "./helpers/element.helpers"
+import { cleanChildComponents, copyBindElement, createTemporaryElement, scopeBindElement } from "./helpers/element.helpers"
 import { sortComponentIds } from "./helpers/id.generators"
 import { renderHelper } from "./helpers/render"
 import { ComponentRegistry } from "./models/component"
@@ -17,10 +17,10 @@ const strawberry = window['strawberry'] = {
         BootableApps.push(appInstance)
         return {
             component:(name:string,handler:()=>any)=>{
-                appInstance.getLibrary().component.registerHandler({
-                    componentName: '@'+name,
-                    handler: handler
-                })
+                appInstance.getLibrary().component.registerHandler(
+                    '@'+name,
+                    handler
+                )
             },
             factory:()=>{
 
@@ -48,11 +48,11 @@ DOMHelper.ready(()=>{
 
                 /** Component Element */
                 const componentEl   = componentEls[i]
-                const componentName = AttributeHelper.getXValueFromElAttr({
-                    element: componentEl,
-                    prefix: appInstance.getConfig().prefix,
-                    attributeName: COMPONENT_ELEMENT_ATTR
-                })
+                const componentName = AttributeHelper.getXValueFromElAttr(
+                    componentEl,
+                    appInstance.getConfig().prefix,
+                    COMPONENT_ELEMENT_ATTR
+                )
                 
 
                 /** Component IDs would have to be embedded to the xid attribute */
@@ -63,59 +63,56 @@ DOMHelper.ready(()=>{
                  * Retrieving component templates, as well as the templates of their dependencies,
                  * and the dependencies of their dependencies.
                  */
-                componentEl.innerHTML = await bootComponentTemplates({
-                    componentId: xid,
-                    component: componentEl,
-                    appInstance: appInstance,
-                    componentTree: [componentName]
-                })
+                componentEl.innerHTML = await bootComponentTemplates(
+                    xid,
+                    componentEl,
+                    appInstance,
+                    [componentName]
+                )
             }
 
             const componentObjects = appInstance.getRegistry().component.getRegistry()
             const componentIdsList = []
             for (const componentId in componentObjects) {
                 componentIdsList.push(componentId)
-                await bootComponentHandler({
-                    componentObject: componentObjects[componentId],
-                    appInstance: appInstance
-                })
+                await bootComponentHandler(
+                    componentObjects[componentId],
+                    appInstance
+                )
             }
 
-            const sortedKeys = sortComponentIds(componentIdsList)
-            const sortedComponentRegistry = new ComponentRegistry
-            let b = 0
-            sortedKeys.forEach(key => {
-                sortedComponentRegistry.register({key:b+'.'+key,component:componentObjects[key]})
-                b++
-            })
-
             /** Rendering phase */
-            for (const sortedComponentId in sortedComponentRegistry.getRegistry()) {
-                const componentId = (sortedComponentRegistry.getRegistry())[sortedComponentId].getId()
-                const targetElement = AttributeHelper.getElementByXId({
-                    element: appInstance.getAppHtmlBody(),
-                    appInstance: appInstance,
-                    xid: componentId
-                })
-                const temporaryElement = createTemporaryElement()
+            for (const componentId in componentObjects) {
+                const targetElement = AttributeHelper.getElementByXId(
+                    appInstance.getAppHtmlBody(),
+                    appInstance,
+                    componentId
+                )
+
+                /** 
+                 * This happens for the following circumstances: 
+                 * - When the component is added inside an xif element
+                 */
+                if (targetElement===null) continue
+
+                const temporaryElement     = createTemporaryElement()
                 temporaryElement.innerHTML = targetElement.innerHTML
-                cleanChildComponents({
-                    component: temporaryElement,
-                    childComponentIds: componentObjects[componentId].getChildIds(),
-                    appInstance: appInstance
-                })
-                await renderHelper({
-                    targetElement: temporaryElement,
-                    componentObject: componentObjects[componentId],
-                    appInstance: appInstance
-                })
-                // targetElement.innerHTML = ''
-                // copyBindElement({
-                //     bindFrom: temporaryElement,
-                //     bindTo: targetElement
-                // })
-                console.log('asdasdasd')
-                console.log(temporaryElement.innerHTML)
+                cleanChildComponents(
+                    temporaryElement,
+                    componentObjects[componentId].getChildIds(),
+                    appInstance
+                )
+                await renderHelper(
+                    temporaryElement,
+                    componentObjects[componentId],
+                    appInstance
+                )
+                scopeBindElement(
+                    temporaryElement,
+                    targetElement,
+                    appInstance,
+                    componentObjects[componentId].getChildIds() 
+                )
             }
 
             
@@ -126,7 +123,8 @@ DOMHelper.ready(()=>{
              * Will need to see how we can transfer properly from DOM implementation
              * to actual HTML
              */
-            appElement.innerHTML = appInstance.getAppHtmlBody().innerHTML
+            //appElement.innerHTML = appInstance.getAppHtmlBody().innerHTML
+            copyBindElement(appInstance.getAppHtmlBody(),appElement)
 
         } catch (error) {
             console.error(error)

@@ -16,17 +16,4 @@ export const sortComponentIds = (Ids:Array<string>) => {
         i--
     }
     return sortedIds
-    // const sortedIds = []
-    // let largest = 1
-    // Ids.forEach(Id=>{
-    //     if (Id.length>largest) largest = Id.length
-    // })
-    // let i = largest 
-    // while (largest>i) {
-    //     Ids.forEach(Id=>{
-    //         if (Id.length===i) sortedIds.push(Id)
-    //     })
-    //     i++
-    // }
-    // return sortedIds
 }

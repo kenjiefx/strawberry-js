@@ -4,10 +4,23 @@
         <script type="text/javascript" src="strawberry.js"></script>
         <script type="text/javascript">
             const app = strawberry.create('MyApp1');
-            app.component('ProfileCard',($scope,Header)=>{
+            app.component('ProfileCard',($scope,Header,$enable)=>{
                 $scope.firstName = 'Kenjie'
+                $scope.user = {
+                    firstName: 'Lance',
+                    lastName: 'Macapagal'
+                }
+                $scope.isAcceptTerms = false
+                $scope.changeAccept=()=>{
+                    console.log($scope.isAcceptTerms)
+                }
+                $scope.selectDisabledInput=()=>{
+                    $enable('Registration/Input/Standard')
+                }
             })
             app.component('Header',($scope)=>{
+                $scope.firstName = 'Mike'
+                $scope.fontColor = 'red'
                 return {
                     test:()=>{
                         console.log('Test is accurate!')
@@ -15,15 +28,22 @@
                     }
                 }
             })
-            app.component('Footer',($scope)=>{
+            app.component('Footer',($scope,$block)=>{
                 $scope.users = [
                     {firstName:'Kenjie'},
                     {firstName:'Vince'}
                 ]
+                $scope.clickMe=()=>{
+                    console.log('Yes, it is clicked!')
+                    $block('/Input/Standard',(element)=>console.log(element.$element.innerHTML))
+                }
             })
         </script>
+        <style>
+            .red {color:red}
+        </style>
     </head>
-    <body>
+    <body style="background-color: #282828; color:white;">
         <div xstrawberry="MyApp1">
             
         </div>
@@ -34,19 +54,37 @@
             <article xcomponent="@Header"></article>
         </template>
         <template xcomponent="@ProfileCard">
-            {{firstName}}
+            <div xblock="@ProfileCard/SampleBlock">
+                {{firstName}} 
+                {{user.firstName}}
+            </div>
+            <div xif="firstName=='Kenjie'">
+                <h1 xcomponent="@Header"></h1>
+            </div>
+            <input xdisable="Registration/Input/Standard" xmodel="user.firstName" type="text">
+            <div>
+                <input type="checkbox" xmodel="isAcceptTerms" xchange="changeAccept()"> Accept terms and condition
+            </div>
+            <input xdisable="Registration/Input/Standard" xmodel="user.lastName" type="text">
+            <button xclick="selectDisabledInput()">Select Disabled Input</button>
+            <header xcomponent="@Header"></header>
             
-            <div xcomponent="@Header"></div>
-            <div xcomponent="@Header"></div>
         </template>
         <template xcomponent="@Header">
-            This is the header
+            This is the header {{firstName}}
+            <input xdisable="Registration/Input/Standard" xmodel="firstName" type="text">
+            <div class="" xstyle="fontColor">This text should be color red</div>
             <section xcomponent="@Footer"></section>
         </template>
         <template xcomponent="@Footer">
             <div xrepeat="users as user">
-                <span class="index={{$index}}">test</span>
+                <span xif="user.firstName=='Kenjie'">Yes,this repeat is Kenjie</span>
+                <span class="index={{$index}}">{{user.firstName}} </span>
             </div>
+            <div xblock="/Input/Standard">
+                <div>This is a new block!</div>
+            </div>
+            <button xclick="clickMe()">Click Me</button>
         </template>
     </body>
 </html>

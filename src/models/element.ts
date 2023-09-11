@@ -3,8 +3,10 @@ import { ScopeObject } from "./scope";
 export class StrawberryElement {
     $element: {scopeOf:ScopeObject} & HTMLElement
     $parent: StrawberryElement
+    private state: string | null
     constructor(element,treeCount=null){
         this.$element = element
+        this.state = null
         if (treeCount==null) {
             treeCount = 1;
         }
@@ -15,19 +17,26 @@ export class StrawberryElement {
     get(){
         return this.$element;
     }
-    referenceScope(scopeObject){
+    getState(){
+        return this.state
+    }
+    setState(state:string){
+        if (state===null) return
+        this.state = state
+    }
+    referenceScope(scopeObject:ScopeObject){
         this.$element.scopeOf = scopeObject;
     }
-    addClass(className){
+    addClass(className:string){
         this.$element.classList.add(className);
     }
     listClass(){
         return this.$element.className.split(' ');
     }
-    removeClass(className){
+    removeClass(className:string){
         this.$element.classList.remove(className);
     }
-    toggleClass(className){
+    toggleClass(className:string){
         let classes = this.listClass();
         for (var i = 0; i < classes.length; i++) {
             let clas = classes[i];

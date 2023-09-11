@@ -3,7 +3,9 @@ import { StrawberryComponent } from "../models/component";
 import { StrawberryElement } from "../models/element";
 import { ScopeObject } from "../models/scope";
 import { StrawberryApp } from "../models/strawberry.app";
-import { AttributeHelper, COMPONENT_ELEMENT_ATTR, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
+import { blocksService } from "../services/blocks";
+import { enableService } from "../services/enable";
+import { AttributeHelper, BLOCK_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, ENABLE_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
 import { createComponentId } from "./id.generators";
 
 /**
@@ -13,11 +15,11 @@ import { createComponentId } from "./id.generators";
  */
 export function getAppInstances(appInstance:StrawberryApp):[Element,HTMLTemplateElement]{
     try {
-        const selector = AttributeHelper.makeXAttrWithValue({
-            attributeName: STRAWBERRY_ATTRIBUTE,
-            appInstance: appInstance,
-            value: appInstance.getName()
-        })
+        const selector = AttributeHelper.makeXAttrWithValue(
+            STRAWBERRY_ATTRIBUTE,
+            appInstance,
+            appInstance.getName()
+        )
         const domInstances = document.querySelectorAll(`[${selector}]`)
 
         if (domInstances.length===0) {
@@ -46,23 +48,26 @@ export function getAppInstances(appInstance:StrawberryApp):[Element,HTMLTemplate
 /**
  * 
  */
-export function bootComponentTemplates({componentId,component,appInstance,componentTree}:{componentId:string,component:Element,appInstance:StrawberryApp,componentTree:Array<string>}):Promise<string>{
+export function bootComponentTemplates(
+    componentId:string,
+    component:Element,
+    appInstance:StrawberryApp,
+    componentTree:Array<string>):Promise<string>{
     return new Promise(async (resolve,reject)=>{
         try {
             let compiledComponentHtml = ''
 
             // First, we'll check if component has declared template
-            const componentName = AttributeHelper.getXValueFromElAttr({
-                element: component,
-                prefix: appInstance.getConfig().prefix,
-                attributeName: COMPONENT_ELEMENT_ATTR
-            })
-            
-            const componentAttribute = AttributeHelper.makeXAttrWithValue({
-                attributeName: COMPONENT_ELEMENT_ATTR,
-                appInstance: appInstance,
-                value: componentName
-            })
+            const componentName = AttributeHelper.getXValueFromElAttr(
+                component,
+                appInstance.getConfig().prefix,
+                COMPONENT_ELEMENT_ATTR
+            )
+            const componentAttribute = AttributeHelper.makeXAttrWithValue(
+                COMPONENT_ELEMENT_ATTR,
+                appInstance,
+                componentName
+            )
             const componentSelector         = `template[${componentAttribute}]`
             const componentTemplateElements = document.querySelectorAll(componentSelector)
 
@@ -82,10 +87,10 @@ export function bootComponentTemplates({componentId,component,appInstance,compon
             componentObject.setId(componentId).setName(componentName)
 
             /** Registering the Component in the Library */
-            appInstance.getLibrary().component.registerTemplate({
-                componentName: componentName,
-                template: componentTemplateElement.innerHTML
-            })
+            appInstance.getLibrary().component.registerTemplate(
+                componentName,
+                componentTemplateElement.innerHTML
+            )
 
             /** Registering the Component Object */
             appInstance.getRegistry().component.register({
@@ -94,19 +99,12 @@ export function bootComponentTemplates({componentId,component,appInstance,compon
             })
 
             /** Retrieving and processing of child components **/
-            const selector = AttributeHelper.makeXAttr({
-                attributeName: COMPONENT_ELEMENT_ATTR,
-                appInstance: appInstance
-            })
+            const selector = AttributeHelper.makeXAttr(COMPONENT_ELEMENT_ATTR,appInstance)
             const childComponents = componentImplementation.querySelectorAll(`[${selector}]`)
             for (let i = 0; i < childComponents.length; i++) {
 
                 const childComponent     = childComponents[i]
-                const childComponentName = AttributeHelper.getXValueFromElAttr({
-                    element: childComponent,
-                    prefix: appInstance.getConfig().prefix,
-                    attributeName: COMPONENT_ELEMENT_ATTR
-                })
+                const childComponentName = AttributeHelper.getXValueFromElAttr(childComponent,appInstance.getConfig().prefix,COMPONENT_ELEMENT_ATTR)
 
                 const childComponentId   = createComponentId(componentId,i.toString())
                 childComponent.setAttribute('xid',childComponentId)
@@ -119,12 +117,12 @@ export function bootComponentTemplates({componentId,component,appInstance,compon
                 }
                 const childComponentTree = [childComponentName,...componentTree]
 
-                childComponent.innerHTML = await bootComponentTemplates({
-                    componentId: childComponentId,
-                    component: childComponent,
-                    appInstance: appInstance,
-                    componentTree: childComponentTree
-                })
+                childComponent.innerHTML = await bootComponentTemplates(
+                    childComponentId,
+                    childComponent,
+                    appInstance,
+                    childComponentTree
+                )
             }
 
             compiledComponentHtml += componentImplementation.body.innerHTML
@@ -137,12 +135,8 @@ export function bootComponentTemplates({componentId,component,appInstance,compon
     
 }
 
-function parseHandlerArguments(){
-
-}
-
 /** This is where callback functions to components are being executed */
-export function bootComponentHandler({componentObject,appInstance}:{componentObject:StrawberryComponent,appInstance:StrawberryApp}):Promise<void>{
+export function bootComponentHandler(componentObject:StrawberryComponent,appInstance:StrawberryApp):Promise<void>{
     return new Promise(async (resolve,reject)=>{
         try {
 
@@ -151,7 +145,7 @@ export function bootComponentHandler({componentObject,appInstance}:{componentObj
                 return 
             }
 
-            const componentName = componentObject.getName()
+            const componentName    = componentObject.getName()
             const componentLibrary = appInstance.getLibrary().component
             
             const componentHandler = componentLibrary.getHandler(componentName)
@@ -186,6 +180,20 @@ export function bootComponentHandler({componentObject,appInstance}:{componentObj
                     continue
                 }
                 if (argument.charAt(0)==='$') {
+                    switch(argument) {
+                        case BLOCK_ARGUMENT_KEY: 
+                            injectableArguments.push((blockName:string,callback:()=>any)=>{
+                                return blocksService(componentObject,appInstance,blockName,callback)
+                            })
+                        break;
+                        case ENABLE_ARGUMENT_KEY: 
+                            injectableArguments.push((elementName:string)=>{
+                                return enableService(componentObject,appInstance,elementName)
+                            })
+                        break;
+                        default: 
+                        break;
+                    }
                     continue
                 }
 
@@ -197,27 +205,28 @@ export function bootComponentHandler({componentObject,appInstance}:{componentObj
                 if (!allChildComponentNames.includes(argument)) {
                     throw new Error(`strawberry.js: [BootError] @${argument} is not a child component of ${componentName}`)
                 }
+                
                 /** Get all children with that child component names */
-                const componentElementImplementation = AttributeHelper.getElementByXId({
-                    element: appInstance.getAppHtmlBody(),
-                    appInstance: appInstance,
-                    xid: componentObject.getId()
-                })
-                const childXids = AttributeHelper.getXidsOfChildComponentByName({
-                    element: componentElementImplementation,
-                    appInstance: appInstance,
-                    componentObject: componentObject,
-                    childComponentName: argument
-                })
+                const componentElementImplementation = AttributeHelper.getElementByXId(
+                    appInstance.getAppHtmlBody(),
+                    appInstance,
+                    componentObject.getId()
+                )
+                const childXids = AttributeHelper.getXidsOfChildComponentByName(
+                    componentElementImplementation,
+                    appInstance,
+                    componentObject,
+                    argument
+                )
 
                 const wrapper:{[key:string]:StrawberryComponent} = {}
                 for (let n = 0; n < childXids.length; n++) {
                     const childXid = childXids[n]
                     const childComponentObject = appInstance.getRegistry().component.getRegistry()[childXid]
-                    await bootComponentHandler({
-                        componentObject: childComponentObject,
-                        appInstance: appInstance
-                    })
+                    await bootComponentHandler(
+                        childComponentObject,
+                        appInstance
+                    )
                     wrapper[childXid] = childComponentObject
                 }
                 const componentProxy = new Proxy(wrapper, {

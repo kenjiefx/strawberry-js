@@ -2,6 +2,7 @@
 
 $extraFileNames = ['.','..'];
 class BuildPaths {
+    public static string $SERVICES = ROOT.'/build/services/';
     public static string $HELPERS = ROOT.'/build/helpers/';
     public static string $MODELS = ROOT.'/build/models/';
     public static string $APP = ROOT.'/build/app.js';
@@ -58,6 +59,7 @@ function clearExIm (string $scriptContent){
 
 echo '(()=>{'.PHP_EOL;
     $buildDirQueue = [
+        BuildPaths::$SERVICES,
         BuildPaths::$HELPERS,
         BuildPaths::$MODELS
     ];

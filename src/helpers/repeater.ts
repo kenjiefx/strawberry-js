@@ -16,18 +16,18 @@ function dissectRepeatExpression(expression:string){
     ]
 }
 
-export function repeatHelper(args:{targetElement:Element,componentObject:StrawberryComponent,appInstance:StrawberryApp}):Promise<null>{
+export function repeatHelper(targetElement:Element,componentObject:StrawberryComponent,appInstance:StrawberryApp):Promise<null>{
     return new Promise(async (resolve,reject)=>{
         try {
             
             /** Retrieving all repeatable elements */
-            const repeatableElements = AttributeHelper.getElementByXAttribute({
-                element: args.targetElement,
-                appInstance: args.appInstance,
-                attributeName: REPEAT_ELEMENT_ATTR
-            })
+            const repeatableElements = AttributeHelper.getElementByXAttribute(
+                targetElement,
+                appInstance,
+                REPEAT_ELEMENT_ATTR
+            )
 
-            const scopeObject = args.componentObject.getScopeObject()
+            const scopeObject = componentObject.getScopeObject()
 
             /** Looping through repeatable elements */ 
             for (let i = 0; i < repeatableElements.length; i++) {
@@ -36,11 +36,11 @@ export function repeatHelper(args:{targetElement:Element,componentObject:Strawbe
 
                 repeatableElement.innerHTML = ''
 
-                let expression = AttributeHelper.getXValueFromElAttr({
-                    element: repeatableElement,
-                    prefix: args.appInstance.getConfig().prefix,
-                    attributeName: REPEAT_ELEMENT_ATTR
-                })
+                let expression = AttributeHelper.getXValueFromElAttr(
+                    repeatableElement,
+                    appInstance.getConfig().prefix,
+                    REPEAT_ELEMENT_ATTR
+                )
 
                 let [refObjName,aliasObjName] = dissectRepeatExpression(expression)
 
@@ -61,29 +61,33 @@ export function repeatHelper(args:{targetElement:Element,componentObject:Strawbe
                 }
 
                 const repeatableObject = new Resolver().expression(scopeObject,refObjName)
+
                 if (undefined!==repeatableObject&&null!==repeatableObject) {
                     let j = 0
                     for (const [key, value] of Object.entries(repeatableObject)) {
                         // Creating an invidual component for each repititions
                         let childTempComponent = new StrawberryComponent()
+
                         childTempComponent.setScopeObject({
                             $parent: scopeObject,
-                            $index: j++
+                            $index: j++,
+                            [aliasObjName]: repeatableObject[key]
                         })
         
                         const childRepeatElement = createTemporaryElement()
                         childRepeatElement.innerHTML = htmlTemplate
 
-                        await renderHelper({
-                            targetElement: childRepeatElement,
-                            componentObject: childTempComponent,
-                            appInstance: args.appInstance
-                        })
+                        await renderHelper(
+                            childRepeatElement,
+                            childTempComponent,
+                            appInstance,
+                            true
+                        )
 
-                        copyBindElement({
-                            bindFrom: childRepeatElement,
-                            bindTo: repeatableElement
-                        })
+                        copyBindElement(
+                            childRepeatElement,
+                            repeatableElement
+                        )
                         
                     }
                 }
