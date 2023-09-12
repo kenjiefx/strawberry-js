@@ -32,7 +32,7 @@ export function setDisabledElementState(componentObject:StrawberryComponent,appI
         }
         componentObject.setNamedElementState(elementName,state)
     } catch (error) {
-        console.error(`strawberry.js: [EnablerService] `+error.message)
+        console.error(`strawberry.js: [DisablerService] `+error.message)
     }
 }
 

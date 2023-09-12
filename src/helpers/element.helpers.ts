@@ -61,6 +61,7 @@ export function scopeBindElement(bindFromEl:Element,bindToEl:Element,appInstance
             childActualComponent
         )
     }
+
 }
 
 

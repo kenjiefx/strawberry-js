@@ -20,6 +20,7 @@ export class StrawberryApp {
     private library: {
         component: ComponentLibrary
     }
+    private ready: boolean
     constructor({id, name,config}:{
         id: number
         name: string,
@@ -34,6 +35,7 @@ export class StrawberryApp {
         this.library = {
             component: new ComponentLibrary()
         }
+        this.ready = false
         if (config===undefined) {
             this.config = {
                 prefix: 'x'
@@ -65,5 +67,11 @@ export class StrawberryApp {
     }
     getLibrary(){
         return this.library
+    }
+    isReady(){
+        return this.ready
+    }
+    setReady(){
+        this.ready = true
     }
 }

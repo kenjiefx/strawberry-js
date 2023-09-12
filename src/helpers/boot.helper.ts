@@ -6,7 +6,8 @@ import { StrawberryApp } from "../models/strawberry.app";
 import { blocksService } from "../services/blocks";
 import { disableService } from "../services/disable";
 import { enableService } from "../services/enable";
-import { AttributeHelper, BLOCK_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, DISABLE_ARGUMENT_KEY, ENABLE_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
+import { patchEntityService } from "../services/patch";
+import { AttributeHelper, BLOCK_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, DISABLE_ARGUMENT_KEY, ENABLE_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
 import { createComponentId } from "./id.generators";
 
 /**
@@ -127,6 +128,7 @@ export function bootComponentTemplates(
             }
 
             compiledComponentHtml += componentImplementation.body.innerHTML
+            componentObject.setHtmlTemplate(compiledComponentHtml)
             resolve(compiledComponentHtml)
 
         } catch (error) {
@@ -195,6 +197,11 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                         case DISABLE_ARGUMENT_KEY: 
                             injectableArguments.push((elementName:string)=>{
                                 return disableService(componentObject,appInstance,elementName)
+                            })
+                        break;
+                        case PATCH_ARGUMENT_KEY: 
+                            injectableArguments.push((elementName?:string|null)=>{
+                                return patchEntityService(componentObject,appInstance,elementName??null)
                             })
                         break;
                         default: 

@@ -4,8 +4,8 @@
         <script type="text/javascript" src="strawberry.js"></script>
         <script type="text/javascript">
             const app = strawberry.create('MyApp1');
-            app.component('ProfileCard',($scope,Header,$enable)=>{
-                $scope.firstName = 'Kenjie'
+            app.component('ProfileCard',($scope,Header,$enable,$patch)=>{
+                $scope.firstName = 'Kenjiefx'
                 $scope.user = {
                     firstName: 'Lance',
                     lastName: 'Macapagal'
@@ -13,17 +13,29 @@
                 $scope.isAcceptTerms = false
                 $scope.changeAccept=()=>{
                     console.log($scope.isAcceptTerms)
+                    Header.test()
                 }
                 $scope.selectDisabledInput=()=>{
                     $enable('Registration/Input/Standard')
                 }
+                $scope.patchMe=async ()=>{
+                    await $patch('Sample/Patchable/Block')
+                    await $patch('ProfileCard/SampleBlock')
+                }
             })
-            app.component('Header',($scope,$disable)=>{
-                $scope.firstName = 'Mike'
+            app.component('Header',($scope,$disable,$patch)=>{
+                setTimeout(()=>{
+                    $scope.firstName = 'Mike'
+                    $patch()
+                },1000)
                 $scope.fontColor = 'red'
                 $scope.disableSelect=(button)=>{
                     console.log(button)
                     $disable('Countries/Select/List')
+                }
+                $scope.updateName=async (input)=>{
+                    console.log(input)
+                    await $patch()
                 }
                 return {
                     test:()=>{
@@ -59,26 +71,28 @@
         </template>
 
         <template xcomponent="@ProfileCard">
-            <div xblock="@ProfileCard/SampleBlock">
+            <div xblock="ProfileCard/SampleBlock">
                 {{firstName}} 
                 {{user.firstName}}
             </div>
-            <div xif="firstName=='Kenjie'">
-                <h1 xcomponent="@Header"></h1>
+            <div xblock="Sample/Patchable/Block">
+                <div xif="firstName=='Kenjie'">
+                    <h1 xcomponent="@Header"></h1>
+                </div>
             </div>
-            <input xdisable="Registration/Input/Standard" xmodel="user.firstName" type="text">
+            <input xdisable="Registration/Input/Standard" xmodel="firstName" type="text">
             <div>
                 <input type="checkbox" xmodel="isAcceptTerms" xchange="changeAccept()"> Accept terms and condition
             </div>
             <input xdisable="Registration/Input/Standard" xmodel="user.lastName" type="text">
             <button xclick="selectDisabledInput()">Select Disabled Input</button>
             <header xcomponent="@Header"></header>
-            
+            <button xclick="patchMe()">Patch Me</button>
         </template>
 
         <template xcomponent="@Header">
             This is the header {{firstName}}
-            <input xdisable="Registration/Input/Standard" xmodel="firstName" type="text">
+            <input xmodel="firstName" type="text" xchange="updateName()">
             <div class="" xstyle="fontColor">This text should be color red</div>
             <section xcomponent="@Footer"></section>
             <select xenable="Countries/Select/List">

@@ -60,12 +60,14 @@ export class StrawberryComponent {
     private handler: {[key:string]:any} | string | boolean | number | Array<unknown> | null
     private scopeObject: ScopeObject | null
     private namedElements: {[key:string]:{state:string|null,template:string}}
+    private htmlTemplate: string
     constructor(){
         this.id = 'unset'
         this.name = 'unset'
         this.childNames = []
         this.childIds = []
-        this.handler = null 
+        this.handler = null
+        this.htmlTemplate = '' 
         this.scopeObject = null
         this.namedElements = {}
     }
@@ -127,8 +129,18 @@ export class StrawberryComponent {
         if (!this.namedElements.hasOwnProperty(name)) return null
         return this.namedElements[name].state
     }
+    getNamedElementTemplate(name:string){
+        if (!this.namedElements.hasOwnProperty(name)) return null
+        return this.namedElements[name].template
+    }
     setNamedElementState(name:string,state:string) {
         if (!this.namedElements.hasOwnProperty(name)) return
         this.namedElements[name].state = state
+    }
+    setHtmlTemplate(html:string){
+        this.htmlTemplate = html
+    }
+    getHtmlTemplate(){
+        return this.htmlTemplate
     }
 }

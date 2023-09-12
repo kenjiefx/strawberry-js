@@ -69,6 +69,7 @@ DOMHelper.ready(()=>{
                     appInstance,
                     [componentName]
                 )
+
             }
 
             const componentObjects = appInstance.getRegistry().component.getRegistry()
@@ -80,6 +81,18 @@ DOMHelper.ready(()=>{
                     appInstance
                 )
             }
+
+            for (const componentId in componentObjects) {
+                const componentTemporaryElement = createTemporaryElement()
+                componentTemporaryElement.innerHTML = componentObjects[componentId].getHtmlTemplate()
+                cleanChildComponents(
+                    componentTemporaryElement,
+                    componentObjects[componentId].getChildIds(),
+                    appInstance
+                )
+                componentObjects[componentId].setHtmlTemplate(componentTemporaryElement.innerHTML)
+            }
+
 
             /** Rendering phase */
             for (const componentId in componentObjects) {
@@ -125,6 +138,7 @@ DOMHelper.ready(()=>{
              */
             //appElement.innerHTML = appInstance.getAppHtmlBody().innerHTML
             copyBindElement(appInstance.getAppHtmlBody(),appElement)
+            appInstance.setReady()
 
         } catch (error) {
             console.error(error)

@@ -21,7 +21,7 @@ export function blockHelpers(targetElement:Element,componentObject:StrawberryCom
                 )
 
                 /** Retrieving and registering the template */
-                const componentTemplate = appInstance.getLibrary().component.getTemplate(componentObject.getName())
+                const componentTemplate = componentObject.getHtmlTemplate()
                 const tempCompEl        = createTemporaryElement()
                 tempCompEl.innerHTML    = componentTemplate
                 const selector = AttributeHelper.makeXAttrWithValue(
