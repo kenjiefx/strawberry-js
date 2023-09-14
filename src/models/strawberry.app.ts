@@ -1,5 +1,6 @@
 import { ComponentLibrary, ComponentRegistry } from "./component"
 import { DomImplementationWrapper } from "./dom.implementation.wrapper"
+import { ServiceLibrary, ServiceRegistry } from "./service"
 
 export type StrawberryAppConfig = {
     prefix: string
@@ -16,9 +17,11 @@ export class StrawberryApp {
     private domHtml: DomImplementationWrapper
     private registry: {
         component: ComponentRegistry
+        service: ServiceRegistry
     }
     private library: {
-        component: ComponentLibrary
+        component: ComponentLibrary,
+        service: ServiceLibrary
     }
     private ready: boolean
     constructor({id, name,config}:{
@@ -30,10 +33,12 @@ export class StrawberryApp {
         this.name = name
         this.domHtml = new DomImplementationWrapper(name)
         this.registry = {
-            component: new ComponentRegistry()
+            component: new ComponentRegistry(),
+            service: new ServiceRegistry()
         }
         this.library = {
-            component: new ComponentLibrary()
+            component: new ComponentLibrary(),
+            service: new ServiceLibrary()
         }
         this.ready = false
         if (config===undefined) {

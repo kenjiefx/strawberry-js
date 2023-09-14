@@ -6,8 +6,9 @@ import { StrawberryApp } from "../models/strawberry.app";
 import { blocksService } from "../services/blocks";
 import { disableService } from "../services/disable";
 import { enableService } from "../services/enable";
+import { parentReferenceService } from "../services/parent";
 import { patchEntityService } from "../services/patch";
-import { AttributeHelper, BLOCK_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, DISABLE_ARGUMENT_KEY, ENABLE_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
+import { AttributeHelper, BLOCK_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, DISABLE_ARGUMENT_KEY, ENABLE_ARGUMENT_KEY, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
 import { createComponentId } from "./id.generators";
 
 /**
@@ -138,6 +139,71 @@ export function bootComponentTemplates(
     
 }
 
+export function bootCallbackParser(handler:(...args: any[])=>any,type:'component'|'service'|'factory',name:string):Promise<Array<string>>{
+    return new Promise((resolve,reject)=>{
+        try {
+            const handlerStr = handler.toString()
+            const matchedFn  = handlerStr.match(/(?<=\().+?(?=\))/g)
+            if (matchedFn===null || /[(={})]/g.test(matchedFn[0])) {
+                throw new Error(`strawberry.js: [BootError] Invalid ${type} callback ${name}.`)
+            }
+            resolve(matchedFn[0].split(','))
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+function isServiceOrFactory(name:string,appInstance:StrawberryApp):'service' | 'factory' | null {
+    /** Check if it is a Service */
+    let serviceOb = appInstance.getLibrary().service.getHandler(name)
+    if (serviceOb!==null) return 'service'
+    return null
+}
+
+
+export function bootServiceHandler(serviceName:string,appInstance:StrawberryApp):Promise<{[key:string]:any}|null>{
+    return new Promise(async (resolve,reject)=>{
+        try {
+            let handleOb = appInstance.getRegistry().service.getService(serviceName)
+            if (handleOb!==null) {
+                resolve(handleOb)
+                return 
+            }
+            const serviceLib = appInstance.getLibrary().service.getHandler(serviceName)
+            if (serviceLib===null) {
+                throw new Error(`strawberry.js: [BootError] Unregistered service callback ${serviceName}.`)
+            }
+
+            const serviceHandler = serviceLib.handler
+
+            const args = await bootCallbackParser(serviceHandler,'service',serviceName)
+            handleOb = {}
+
+            const injectableArguments = []
+
+            for (let i = 0; i < args.length; i++) {
+                const arg = args[i]
+                if (isServiceOrFactory(arg,appInstance)==='service') {
+                    const depService = await bootServiceHandler(arg,appInstance)
+                    injectableArguments.push(depService)
+                    continue
+                }
+
+            }
+            
+            handleOb = serviceHandler(...injectableArguments)
+            appInstance.getRegistry().service.register(serviceName,handleOb)
+
+            resolve(handleOb)
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+
 /** This is where callback functions to components are being executed */
 export function bootComponentHandler(componentObject:StrawberryComponent,appInstance:StrawberryApp):Promise<void>{
     return new Promise(async (resolve,reject)=>{
@@ -156,21 +222,9 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                 throw new Error(`strawberry.js: [BootError] Unregistered component callback ${componentName}.`)
             }
 
-            const handlerStr = componentHandler.toString()
-            const matchedFn  = handlerStr.match(/(?<=\().+?(?=\))/g)
+            const allArguments = await bootCallbackParser(componentHandler,'component',componentName)
 
             const scopeObject:ScopeObject = {}
-
-            if (matchedFn===null) {
-                throw new Error(`strawberry.js: [BootError] Invalid component callback ${componentName}.`)
-            }
-            if (/[(={})]/g.test(matchedFn[0])) {
-                throw new Error(`strawberry.js: [BootError] Invalid component callback ${componentName}.`)
-            }
-
-            let argumentExpression = matchedFn[0]
-            let allArguments       = argumentExpression.split(',')
-
             const allChildComponentNames = componentObject.getChildNames().map(childName=>childName.substring(1,childName.length))
             
             const injectableArguments = []
@@ -204,6 +258,9 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                                 return patchEntityService(componentObject,appInstance,elementName??null)
                             })
                         break;
+                        case PARENT_ARGUMENT_KEY: 
+                            injectableArguments.push(parentReferenceService(componentObject,appInstance))
+                        break;
                         default: 
                         break;
                     }
@@ -211,6 +268,11 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                 }
 
                 /** @TODO Service injection */
+                const service = appInstance.getLibrary().service.getHandler(argument)
+                if (service!==null) {
+                    injectableArguments.push(await bootServiceHandler(argument,appInstance))
+                    continue
+                }
 
                 /** @TODO Factory injection */
 

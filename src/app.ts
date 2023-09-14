@@ -25,8 +25,11 @@ const strawberry = window['strawberry'] = {
             factory:()=>{
 
             },
-            service:()=>{
-
+            service:(name:string,handler:()=>any)=>{
+                appInstance.getLibrary().service.registerHandler(
+                    name,
+                    handler
+                )
             }
         }
     }

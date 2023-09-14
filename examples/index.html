@@ -4,12 +4,15 @@
         <script type="text/javascript" src="strawberry.js"></script>
         <script type="text/javascript">
             const app = strawberry.create('MyApp1');
-            app.component('ProfileCard',($scope,Header,$enable,$patch)=>{
+            app.component('ProfileCard',($scope,Header,$enable,$patch,UserSvc)=>{
                 $scope.firstName = 'Kenjiefx'
                 $scope.user = {
                     firstName: 'Lance',
                     lastName: 'Macapagal'
                 }
+                setTimeout(()=>{
+                    Header.callMeFromParent()
+                },500)
                 $scope.isAcceptTerms = false
                 $scope.changeAccept=()=>{
                     console.log($scope.isAcceptTerms)
@@ -19,19 +22,31 @@
                     $enable('Registration/Input/Standard')
                 }
                 $scope.patchMe=async ()=>{
+                    UserSvc.sayHello()
                     await $patch('Sample/Patchable/Block')
                     await $patch('ProfileCard/SampleBlock')
                 }
+                return {
+                    callMeFromChild:()=>{
+                        console.log('This is called!')
+                    },
+                    callMeAfterSetTimeout:()=>{
+                        console.log('This is called after set time out 1')
+                        Header.callMeFromParent()
+                    }
+                }
             })
-            app.component('Header',($scope,$disable,$patch)=>{
+            app.component('Header',($scope,$disable,$patch,$parent)=>{
                 setTimeout(()=>{
                     $scope.firstName = 'Mike'
                     $patch()
+                    $parent.get().callMeAfterSetTimeout()
                 },1000)
                 $scope.fontColor = 'red'
                 $scope.disableSelect=(button)=>{
                     console.log(button)
                     $disable('Countries/Select/List')
+                    $parent.get().callMeFromChild()
                 }
                 $scope.updateName=async (input)=>{
                     console.log(input)
@@ -41,6 +56,9 @@
                     test:()=>{
                         console.log('Test is accurate!')
                         return 'aaaa'
+                    },
+                    callMeFromParent:()=>{
+                        console.log('This is called after set time out 2')
                     }
                 }
             })
@@ -52,6 +70,20 @@
                 $scope.clickMe=()=>{
                     console.log('Yes, it is clicked!')
                     $block('/Input/Standard',(element)=>console.log(element.$element.innerHTML))
+                }
+            })
+            app.service('SayHello',()=>{
+                return {
+                    sayNow:()=>{
+                        console.log('Hello world!')
+                    }
+                }
+            })
+            app.service('UserSvc',(SayHello)=>{
+                return {
+                    sayHello:()=>{
+                        SayHello.sayNow()
+                    }
                 }
             })
         </script>
