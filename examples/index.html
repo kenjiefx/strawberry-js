@@ -1,0 +1,166 @@
+<html>
+    <head>
+        <title>Strawberry JS Examples</title>
+        <script type="text/javascript" src="strawberry.dist.js"></script>
+        <script type="text/javascript">
+            const app = strawberry.create('MyApp1');
+            app.component('ProfileCard',($scope,Header,$enable,$patch,UserSvc)=>{
+                $scope.firstName = 'Kenjiefx'
+                $scope.user = {
+                    firstName: 'Lance',
+                    lastName: 'Macapagal'
+                }
+                setTimeout(()=>{
+                    Header.callMeFromParent()
+                },500)
+                $scope.isAcceptTerms = false
+                $scope.changeAccept=()=>{
+                    console.log($scope.isAcceptTerms)
+                    Header.test()
+                }
+                $scope.selectDisabledInput=()=>{
+                    $enable('Registration/Input/Standard')
+                }
+                $scope.patchMe=async ()=>{
+                    UserSvc.sayHello()
+                    await $patch('Sample/Patchable/Block')
+                    await $patch('ProfileCard/SampleBlock')
+                }
+                return {
+                    callMeFromChild:()=>{
+                        console.log('This is called!')
+                    },
+                    callMeAfterSetTimeout:()=>{
+                        console.log('This is called after set time out 1')
+                        Header.callMeFromParent()
+                    }
+                }
+            })
+            app.component('Header',($scope,$disable,$patch,$parent)=>{
+                setTimeout(()=>{
+                    $scope.firstName = 'Mike'
+                    $patch()
+                    $parent.get().callMeAfterSetTimeout()
+                },1000)
+                $scope.fontColor = 'red'
+                $scope.disableSelect=(button)=>{
+                    console.log(button)
+                    $disable('Countries/Select/List')
+                    $parent.get().callMeFromChild()
+                }
+                $scope.updateName=async (input)=>{
+                    console.log(input)
+                    await $patch()
+                }
+                return {
+                    test:()=>{
+                        console.log('Test is accurate!')
+                        return 'aaaa'
+                    },
+                    callMeFromParent:()=>{
+                        console.log('This is called after set time out 2')
+                    }
+                }
+            })
+            app.component('Footer',($scope,$block)=>{
+                $scope.users = [
+                    {firstName:'Kenjie'},
+                    {firstName:'Vince'}
+                ]
+                $scope.clickMe=()=>{
+                    console.log('Yes, it is clicked!')
+                    $block('/Input/Standard',(element)=>console.log(element.$element.innerHTML))
+                }
+            })
+            app.service('SayHello',()=>{
+                return {
+                    sayNow:()=>{
+                        console.log('Hello world!')
+                    }
+                }
+            })
+            app.service('UserSvc',(SayHello,PostFactory)=>{
+                return {
+                    sayHello:()=>{
+                        console.log(PostFactory)
+                        SayHello.sayNow()
+                    }
+                }
+            })
+            app.factory('PostFactory',()=>{
+                return class Post {}
+            })
+            app.component('Router',function($scope,$app){
+                $app.onReady(()=>{
+                    console.log('THIS WAS CALLED AFTER ONREADY!!!')
+                })
+                return {
+                    callMeAfterSetTimeout:()=>{
+                        console.log('I am called')
+                    }
+                }
+            })
+        </script>
+        <style>
+            .red {color:red}
+        </style>
+    </head>
+    <body style="background-color: #282828; color:white;">
+        <div xstrawberry="MyApp1">
+            
+        </div>
+        <template xstrawberry="MyApp1">
+            <div>hello world!</div>
+            <section xcomponent="@Router"></section>
+        </template>
+
+        <template xcomponent="@Router">
+            <section xcomponent="@ProfileCard"></section>
+            <section xcomponent="@ProfileCard"></section>
+            <article xcomponent="@Header"></article>
+        </template>
+
+        <template xcomponent="@ProfileCard">
+            <div xblock="ProfileCard/SampleBlock">
+                {{firstName}} 
+                {{user.firstName}}
+            </div>
+            <div xblock="Sample/Patchable/Block">
+                <div xif="firstName=='Kenjie'">
+                    <h1 xcomponent="@Header"></h1>
+                </div>
+            </div>
+            <input xdisable="Registration/Input/Standard" xmodel="firstName" type="text">
+            <div>
+                <input type="checkbox" xmodel="isAcceptTerms" xchange="changeAccept()"> Accept terms and condition
+            </div>
+            <input xdisable="Registration/Input/Standard" xmodel="user.lastName" type="text">
+            <button xclick="selectDisabledInput()">Select Disabled Input</button>
+            <header xcomponent="@Header"></header>
+            <button xclick="patchMe()">Patch Me</button>
+        </template>
+
+        <template xcomponent="@Header">
+            This is the header {{firstName}}
+            <input xmodel="firstName" type="text" xchange="updateName()">
+            <div class="" xstyle="fontColor">This text should be color red</div>
+            <section xcomponent="@Footer"></section>
+            <select xenable="Countries/Select/List">
+                <option value="Philippines">The Philippines</option>
+                <option value="The USA">The USA</option>
+            </select>
+            <button xclick="disableSelect()">Disable The Select</button>
+        </template>
+
+        <template xcomponent="@Footer">
+            <div xrepeat="users as user">
+                <span xif="user.firstName=='Kenjie'">Yes,this repeat is Kenjie</span>
+                <span class="index={{$index}}">{{user.firstName}} </span>
+            </div>
+            <div xblock="/Input/Standard">
+                <div>This is a new block!</div>
+            </div>
+            <button xclick="clickMe()">Click Me</button>
+        </template>
+    </body>
+</html>

@@ -1,0 +1,1 @@
+export type ScopeObject = {[key:string]:any}
