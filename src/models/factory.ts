@@ -3,20 +3,20 @@ export class TypeofFactory {
 }
 
 export class FactoryLibrary<T extends new (...args: any[]) => any> {
-    private registry: {[serviceName:string]:{
-        handler: (...args: any[])=>T
+    private _factoryRegistry: {[serviceName:string]:{
+        _factoryHandler: (...args: any[])=>T
     }}
     constructor(){
-        this.registry = {}
+        this._factoryRegistry = {}
     }
-    registerHandler(name:string,handler:()=>T){
+    _registerFactoryHandler(name:string,handler:()=>T){
         if (handler===null) return 
-        this.registry[name] = {
-            handler: handler,
+        this._factoryRegistry[name] = {
+            _factoryHandler: handler,
         }
     }
-    getHandler(name:string){
-        if (!this.registry.hasOwnProperty(name)) return null 
-        return this.registry[name].handler
+    _getFactoryHandler(name:string){
+        if (!this._factoryRegistry.hasOwnProperty(name)) return null 
+        return this._factoryRegistry[name]._factoryHandler
     }
 }

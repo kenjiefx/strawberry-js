@@ -13,13 +13,13 @@ export function modelsHelpers(targetElement:Element,componentObject:StrawberryCo
              * is not defined in $scope.user, then this function will add firstName
              * as member property of $scope.user automatically
              */
-            const assignValue=(scopeObject:ScopeObject,modelExpression:string,modelValue:string|boolean|{[key:string]:any}|(()=>unknown))=>{
-                const parentObj = new Resolver().getParentObj(scopeObject,modelExpression)
-                const childObjExpression = new Resolver().getChildObjectExp(modelExpression);
+            const _assignModelValue=(scopeObject:ScopeObject,modelExpression:string,modelValue:string|boolean|{[key:string]:any}|(()=>unknown))=>{
+                const parentObj = new Resolver()._getParentObjAsObject(scopeObject,modelExpression)
+                const childObjExpression = new Resolver()._getChildObjectExp(modelExpression);
                 if (undefined!==parentObj) parentObj[childObjExpression] = modelValue
             }
 
-            const assignState=(modelElement:Element,modelState:boolean)=>{
+            const _assignModelState=(modelElement:Element,modelState:boolean)=>{
                 (typeof modelState == 'boolean' && modelState) ?
                     modelElement.setAttribute('checked','') :
                     modelElement.removeAttribute('checked')
@@ -36,10 +36,10 @@ export function modelsHelpers(targetElement:Element,componentObject:StrawberryCo
                 if (element===null) continue
                 const argument = AttributeHelper.getXValueFromElAttr(
                     element,
-                    appInstance.getConfig().prefix,
+                    appInstance._getAppConfig().prefix,
                     MODEL_ELEMENT_ATTR
                 )
-                const evaluated = new Resolver().expression(componentObject.getScopeObject(),argument)
+                const evaluated = new Resolver()._resolveExpression(componentObject._getScopeObject(),argument)
                 let isValueStringType = true
 
                 if (element.tagName==='INPUT'||element.tagName==='SELECT') {
@@ -48,31 +48,31 @@ export function modelsHelpers(targetElement:Element,componentObject:StrawberryCo
                         if (elementType==='radio'||elementType==='checkbox') {
                             isValueStringType = false;
                             (evaluated===undefined) ? 
-                                assignValue(componentObject.getScopeObject(),argument,false):
-                                assignState(element,evaluated)
+                                _assignModelValue(componentObject._getScopeObject(),argument,false):
+                                _assignModelState(element,evaluated)
                         }
                         if (elementType==='text') {
                             (evaluated===undefined) ?
-                                assignValue(componentObject.getScopeObject(),argument,element.value) :
+                                _assignModelValue(componentObject._getScopeObject(),argument,element.value) :
                                 element.value = evaluated
                         }
                     } 
                     if ((element instanceof HTMLSelectElement)) {
                         (evaluated===undefined) ?
-                                assignValue(componentObject.getScopeObject(),argument,element.value) :
+                            _assignModelValue(componentObject._getScopeObject(),argument,element.value) :
                                 element.value = evaluated
                     }
                     element.addEventListener('change',()=>{
                         if (element instanceof HTMLInputElement) {
-                            assignValue(
-                                componentObject.getScopeObject(),
+                            _assignModelValue(
+                                componentObject._getScopeObject(),
                                 argument,
                                 (isValueStringType) ? element.value : element.checked
                             )
                         } 
                         if (element instanceof HTMLSelectElement) {
-                            assignValue(
-                                componentObject.getScopeObject(),
+                            _assignModelValue(
+                                componentObject._getScopeObject(),
                                 argument,
                                 element.value
                             )
@@ -82,12 +82,12 @@ export function modelsHelpers(targetElement:Element,componentObject:StrawberryCo
 
                 if (element.tagName==='TEXTAREA'&&(element instanceof HTMLTextAreaElement)) {
                     (evaluated===undefined) ?
-                        assignValue(componentObject.getScopeObject(),argument,element.value) :
+                        _assignModelValue(componentObject._getScopeObject(),argument,element.value) :
                         element.value = evaluated
                         
                     element.addEventListener('change',()=>{
-                        assignValue(
-                            componentObject.getScopeObject(),
+                        _assignModelValue(
+                            componentObject._getScopeObject(),
                             argument,
                             element.value
                         );

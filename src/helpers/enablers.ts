@@ -14,13 +14,13 @@ export function enablersHelpers(targetElement:Element,componentObject:Strawberry
                 const element = allEnabledElements[i] as HTMLInputElement
                 const elementName = AttributeHelper.getXValueFromElAttr(
                     element,
-                    appInstance.getConfig().prefix,
+                    appInstance._getAppConfig().prefix,
                     ENABLE_ELEMENT_ATTR
                 )
-                if (null===componentObject.getNamedElementState(elementName)) {
-                    componentObject.registerNamedElement(elementName,'enabled','')
+                if (null===componentObject._getNamedElementState(elementName)) {
+                    componentObject._registerNamedElement(elementName,'enabled','')
                 }
-                element.disabled = (componentObject.getNamedElementState(elementName)==='disabled')
+                element.disabled = (componentObject._getNamedElementState(elementName)==='disabled')
             }
             resolve(null)
         } catch (error) {

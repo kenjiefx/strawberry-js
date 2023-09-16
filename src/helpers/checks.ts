@@ -19,11 +19,11 @@ export function checkedHelper(targetElement:Element,componentObject:StrawberryCo
 
                 const argument = AttributeHelper.getXValueFromElAttr(
                     element,
-                    appInstance.getConfig().prefix,
+                    appInstance._getAppConfig().prefix,
                     CHECK_ELEMENT_ATTR
                 )
 
-                const evalauted = new Resolver().expression(componentObject.getScopeObject(),argument)
+                const evalauted = new Resolver()._resolveExpression(componentObject._getScopeObject(),argument)
                 if (typeof evalauted === 'boolean') {
                     evalauted ? element.setAttribute('checked','') : element.removeAttribute('checked')
                 }

@@ -9,18 +9,18 @@ import { ScopeObject } from "./scope";
 export class Resolver {
 
     /**
-     * @method expression
+     * @method _resolveExpression
      * Resolves an expression based on a given object
      * @param object baseObj
      * @param string expression
      *
      * @returns the value of the resolved expression
      */
-    expression(baseObj:ScopeObject,expression:string,element:Element|null=null){
+    _resolveExpression(baseObj:ScopeObject,expression:string,element:Element|null=null){
 
         // We first determine what type of expression we will need to resolve.
         // This will be based on the structure of the operation
-        let resolveType = this.getResolveType(expression);
+        let resolveType = this._getResolveType(expression);
 
         // This is where the actual resolve process takes place
         return this.resolve(baseObj,expression,resolveType,element);
@@ -28,14 +28,14 @@ export class Resolver {
     }
 
     /**
-     * @method getResolveType
+     * @method _getResolveType
      * Determines the type of an expression
      * @param string expression
      * @returns type of expression
      *
      * @NOTE: the expression should always have to be a string!
      */
-    getResolveType(expression){
+    _getResolveType(expression){
         if (/^'.*'$/.test(expression)) return 'string';
         if (!isNaN(expression)) return 'number';
         if (expression.includes('(')) return 'function';
@@ -66,14 +66,14 @@ export class Resolver {
 
             // CASE: OBJECT
             case 'object':
-                return this.evalObject(scopeObj,expression);
+                return this._evalObject(scopeObj,expression);
                 break;
 
             // CASE: FUNCTION
             case 'function':
 
                 /**
-                 * @function invokeFunction
+                 * @function _invokeFunction
                  * Invokes/calls a given function based on the function expression
                  *
                  * @param object refObject - The object where the function to invoke is a member of
@@ -82,7 +82,7 @@ export class Resolver {
                  * @param string functionExpression - The function expression, for example
                  * myFunction(arg)
                  */
-                let invokeFunction=(refObject,argScope,functionExpression)=>{
+                let _invokeFunction=(refObject,argScope,functionExpression)=>{
 
                     // Parses function structure
                     let splitfunctionExpression = functionExpression.match(/\(([^)]+)\)/);
@@ -97,7 +97,7 @@ export class Resolver {
 
                         let splitFunctionArguments = splitfunctionExpression[1].split(',');
                         for(var i = 0; i < splitFunctionArguments.length; i++) {
-                            argObj.push(this.expression(argScope,splitFunctionArguments[i]));
+                            argObj.push(this._resolveExpression(argScope,splitFunctionArguments[i]));
                         }
 
                         if (element!==null) {
@@ -144,11 +144,11 @@ export class Resolver {
                 // If the said function is a method of an object
                 if (expressionTest.length>1) {
 
-                    let refObject =this.expression(scopeObj,this.getParentObjectExp(funcStruct[0]));
+                    let refObject =this._resolveExpression(scopeObj,this._getParentObjectExp(funcStruct[0]));
 
                     let funcExpression = expression.split('.').slice(((expressionTest.length)-1)).join('.');
 
-                    return invokeFunction(refObject,scopeObj,funcExpression);
+                    return _invokeFunction(refObject,scopeObj,funcExpression);
                 }
 
                 if (!scopeObj.hasOwnProperty(funcStruct[0])) {
@@ -158,7 +158,7 @@ export class Resolver {
                     return '';
                 }
 
-                return invokeFunction(scopeObj,scopeObj,expression);
+                return _invokeFunction(scopeObj,scopeObj,expression);
 
                 break;
 
@@ -175,19 +175,19 @@ export class Resolver {
 
                 if (expression.includes('!==')) {
                     let comparables = expression.split('!==');
-                    return isNotTheSame(this.expression(scopeObj,comparables[0].trim()),this.expression(scopeObj,comparables[1].trim()));
+                    return isNotTheSame(this._resolveExpression(scopeObj,comparables[0].trim()),this._resolveExpression(scopeObj,comparables[1].trim()));
                 }
                 else if (expression.includes('==')) {
                     let comparables = expression.split('==');
-                    return isTheSame(this.expression(scopeObj,comparables[0].trim()),this.expression(scopeObj,comparables[1].trim()));
+                    return isTheSame(this._resolveExpression(scopeObj,comparables[0].trim()),this._resolveExpression(scopeObj,comparables[1].trim()));
                 }
                 else if (expression.includes('is not ')) {
                     let comparables = expression.split('is not');
-                    return isNotTheSame(this.expression(scopeObj,comparables[0].trim()),this.expression(scopeObj,comparables[1].trim()));
+                    return isNotTheSame(this._resolveExpression(scopeObj,comparables[0].trim()),this._resolveExpression(scopeObj,comparables[1].trim()));
                 }
                 else if (expression.includes('is ')) {
                     let comparables = expression.split('is');
-                    return isTheSame(this.expression(scopeObj,comparables[0].trim()),this.expression(scopeObj,comparables[1].trim()));
+                    return isTheSame(this._resolveExpression(scopeObj,comparables[0].trim()),this._resolveExpression(scopeObj,comparables[1].trim()));
                 }
 
                 else {
@@ -209,8 +209,8 @@ export class Resolver {
 
                     if (expression.includes(operations[i])) {
                         let exp = expression.split(operations[i]);
-                        let left = this.expression(scopeObj,exp[0].trim());
-                        var right = this.expression(scopeObj,exp[1].trim());
+                        let left = this._resolveExpression(scopeObj,exp[0].trim());
+                        var right = this._resolveExpression(scopeObj,exp[1].trim());
                         finalExpression = left+operations[i]+right;
                     }
                 }
@@ -219,7 +219,7 @@ export class Resolver {
                 break;
         }
     }
-    evalObject(scopeObj,objectExpression){
+    _evalObject(scopeObj,objectExpression){
         if (objectExpression==='$scope') {
             return scopeObj;
         }
@@ -233,19 +233,19 @@ export class Resolver {
             return o[x];
         }, scopeObj);
     }
-    getParentObjectExp(expression){
+    _getParentObjectExp(expression){
         let expressionPieces = expression.split('.');
         if (expressionPieces.length<2) return '$scope';
         expressionPieces.pop();
         return expressionPieces.join('.');
 
     }
-    getChildObjectExp(expression){
+    _getChildObjectExp(expression){
         let expressionPieces = expression.split('.');
         return expressionPieces[expressionPieces.length - 1];
     }
-    getParentObj(baseObj,objExpression){
-        let parentObjExpression = this.getParentObjectExp(objExpression);
-        return this.expression(baseObj,parentObjExpression);
+    _getParentObjAsObject(baseObj,objExpression){
+        let parentObjExpression = this._getParentObjectExp(objExpression);
+        return this._resolveExpression(baseObj,parentObjExpression);
     }
 }

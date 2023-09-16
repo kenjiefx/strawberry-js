@@ -14,9 +14,9 @@ export function eventsHelper(targetElement:Element,componentObject:StrawberryCom
              * within the component scope
              */
             const addEvent=function(scopeObject:ScopeObject,eventElement:Element,fnExpression:string,eventType:string){
-                if (new Resolver().getResolveType(fnExpression)!=='function') return;
+                if (new Resolver()._getResolveType(fnExpression)!=='function') return;
                 eventElement.addEventListener(eventType,()=>{
-                    new Resolver().expression(scopeObject,fnExpression,eventElement)
+                    new Resolver()._resolveExpression(scopeObject,fnExpression,eventElement)
                 })
             }
 
@@ -37,11 +37,11 @@ export function eventsHelper(targetElement:Element,componentObject:StrawberryCom
                     const element = allEventElements[k]
                     const fnExpression = AttributeHelper.getXValueFromElAttr(
                         element,
-                        appInstance.getConfig().prefix,
+                        appInstance._getAppConfig().prefix,
                         event.attr
                     )
                     if (isElementEventLocked(element,event.type,appInstance)) continue 
-                    addEvent(componentObject.getScopeObject(),element,fnExpression,event.type)
+                    addEvent(componentObject._getScopeObject(),element,fnExpression,event.type)
                     lockElementEvent(element,event.type,appInstance)
                 }
             }

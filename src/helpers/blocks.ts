@@ -16,12 +16,12 @@ export function blockHelpers(targetElement:Element,componentObject:StrawberryCom
 
                 const blockElName = AttributeHelper.getXValueFromElAttr(
                     element,
-                    appInstance.getConfig().prefix,
+                    appInstance._getAppConfig().prefix,
                     BLOCK_ELEMENT_ATTR
                 )
 
                 /** Retrieving and registering the template */
-                const componentTemplate = componentObject.getHtmlTemplate()
+                const componentTemplate = componentObject._getHtmlTemplate()
                 const tempCompEl        = createTemporaryElement()
                 tempCompEl.innerHTML    = componentTemplate
                 const selector = AttributeHelper.makeXAttrWithValue(
@@ -30,8 +30,8 @@ export function blockHelpers(targetElement:Element,componentObject:StrawberryCom
                     blockElName
                 )
                 const tempBlockEl = tempCompEl.querySelector(`[${selector}]`)
-                if (null===componentObject.getNamedElementState(blockElName)) {
-                    componentObject.registerNamedElement(blockElName,'registered',tempBlockEl.innerHTML)
+                if (null===componentObject._getNamedElementState(blockElName)) {
+                    componentObject._registerNamedElement(blockElName,'registered',tempBlockEl.innerHTML)
                 }
             }
 

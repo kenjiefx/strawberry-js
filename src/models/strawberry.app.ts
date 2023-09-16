@@ -24,82 +24,82 @@ export class AppPublicReference {
  * `strawberry.create` function
  */
 export class StrawberryApp {
-    private name: string 
-    private config: StrawberryAppConfig
-    private id: number
-    private domHtml: DomImplementationWrapper
-    private registry: {
+    private _appName: string 
+    private _appConfig: StrawberryAppConfig
+    private _appId: number
+    private _domHtml: DomImplementationWrapper
+    private _appRegistry: {
         component: ComponentRegistry
         service: ServiceRegistry
     }
-    private publicRef: AppPublicReference
-    private library: {
+    private _appPublicRef: AppPublicReference
+    private _appLibrary: {
         component: ComponentLibrary,
         service: ServiceLibrary,
         factory: FactoryLibrary<typeof TypeofFactory>
     }
-    private ready: boolean
+    private _appReadyStatus: boolean
     constructor({id, name,config}:{
         id: number
         name: string,
         config?: StrawberryAppConfig
     }){
-        this.id = id
-        this.name = name
-        this.domHtml = new DomImplementationWrapper(name)
-        this.registry = {
+        this._appId = id
+        this._appName = name
+        this._domHtml = new DomImplementationWrapper(name)
+        this._appRegistry = {
             component: new ComponentRegistry(),
             service: new ServiceRegistry()
         }
-        this.library = {
+        this._appLibrary = {
             component: new ComponentLibrary(),
             service: new ServiceLibrary(),
             factory: new FactoryLibrary()
         }
-        this.publicRef = new AppPublicReference()
-        this.ready = false
+        this._appPublicRef = new AppPublicReference()
+        this._appReadyStatus = false
         if (config===undefined) {
-            this.config = {
+            this._appConfig = {
                 prefix: 'x'
             }
             return
         }
-        this.config = config
+        this._appConfig = config
     }
-    setConfig(config:StrawberryAppConfig){
-        this.config = config
+    _setAppConfig(config:StrawberryAppConfig){
+        this._appConfig = config
     }
-    getConfig():StrawberryAppConfig {
-        return this.config
+    _getAppConfig():StrawberryAppConfig {
+        return this._appConfig
     }
-    getName(){
-        return this.name
+    _getAppName(){
+        return this._appName
     }
-    getId(){
-        return this.id
+    _getAppId(){
+        return this._appId
     }
-    setAppHtmlBody(htmlContent:string){
-        this.domHtml.implementation.body.innerHTML = htmlContent
+    _setAppHtmlBody(htmlContent:string){
+        this._domHtml.implementation.body.innerHTML = htmlContent
     }
-    getAppHtmlBody(){
-        return this.domHtml.implementation.body
+    _getAppHtmlBody(){
+        return this._domHtml.implementation.body
     }
-    getRegistry(){
-        return this.registry
+    _getAppRegistry(){
+        return this._appRegistry
     }
-    getLibrary(){
-        return this.library
+    _getAppLibrary(){
+        return this._appLibrary
     }
-    isReady(){
-        return this.ready
+    _isAppReady(){
+        return this._appReadyStatus
     }
-    setReady(){
-        this.ready = true
-        this.publicRef._afterBootCallbacks.forEach(callback=>{
+    _setAppReadyStatus(){
+        this._appReadyStatus = true
+        this._appPublicRef._afterBootCallbacks.forEach(callback=>{
             callback()
         })
     }
-    getPublicReference(){
-        return this.publicRef
+    _getAppPublicReference(){
+        return this._appPublicRef
     }
 }

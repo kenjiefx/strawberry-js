@@ -18,11 +18,11 @@ export function ifsConditionalHelper(targetElement:Element,componentObject:Straw
                 if (!isElementLocked(ifsElement,appInstance)) {
                     const ifsArgument = AttributeHelper.getXValueFromElAttr(
                         ifsElement,
-                        appInstance.getConfig().prefix,
+                        appInstance._getAppConfig().prefix,
                         IF_ELEMENT_ATTR
                     )
-                    const resolvedIfsValue = new Resolver().expression(
-                        componentObject.getScopeObject(),
+                    const resolvedIfsValue = new Resolver()._resolveExpression(
+                        componentObject._getScopeObject(),
                         ifsArgument
                     )
                     if (typeof resolvedIfsValue ==='boolean' && !resolvedIfsValue) {

@@ -1,51 +1,51 @@
 import { ScopeObject } from "./scope"
 
 export class ComponentRegistry {
-    private registry: {[key:string]:StrawberryComponent}
+    private _componentRegistry: {[key:string]:StrawberryComponent}
     constructor(){
-        this.registry = {}
+        this._componentRegistry = {}
     }
-    register({key,component}:{key:string,component:StrawberryComponent}){
-        this.registry[key] = component
+    _registerComponent({key,component}:{key:string,component:StrawberryComponent}){
+        this._componentRegistry[key] = component
     }
-    getRegistry(){
-        return this.registry
+    _getComponentRegistry(){
+        return this._componentRegistry
     }
 }
 
 export class ComponentLibrary {
-    registry: {[componentName:string]:{
-        template: string|null,
-        handler: (...args: any[])=>any|null
+    private _componentLibRegistry: {[componentName:string]:{
+        _componentTemplateContent: string|null,
+        _componentHandlerFn: (...args: any[])=>any|null
     }}
     constructor(){
-        this.registry = {}
+        this._componentLibRegistry = {}
     }
-    registerTemplate(componentName:string,template:string) {
-        this.createInstance(componentName)
-        if (this.registry[componentName].template===null) {
-            this.registry[componentName].template = template
+    _registerComponentTemplate(componentName:string,template:string) {
+        this.__createComponentInstance(componentName)
+        if (this._componentLibRegistry[componentName]._componentTemplateContent===null) {
+            this._componentLibRegistry[componentName]._componentTemplateContent = template
         }
     }
-    registerHandler(componentName:string,handler:()=>any){
-        this.createInstance(componentName)
-        if (this.registry[componentName].handler===null) {
-            this.registry[componentName].handler = handler
+    _registerComponentHandler(componentName:string,handler:()=>any){
+        this.__createComponentInstance(componentName)
+        if (this._componentLibRegistry[componentName]._componentHandlerFn===null) {
+            this._componentLibRegistry[componentName]._componentHandlerFn = handler
         }
     }
-    getTemplate(componentName:string){
-        if (!this.registry.hasOwnProperty(componentName)) return null
-        return this.registry[componentName].template
+    _getComponentTemplate(componentName:string){
+        if (!this._componentLibRegistry.hasOwnProperty(componentName)) return null
+        return this._componentLibRegistry[componentName]._componentTemplateContent
     }
-    getHandler(componentName:string){
-        if (!this.registry.hasOwnProperty(componentName)) return null
-        return this.registry[componentName].handler
+    _getComponentHandler(componentName:string){
+        if (!this._componentLibRegistry.hasOwnProperty(componentName)) return null
+        return this._componentLibRegistry[componentName]._componentHandlerFn
     }
-    private createInstance(componentName:string){
-        if (!this.registry.hasOwnProperty(componentName)) {
-            this.registry[componentName] = {
-                template: null,
-                handler: null
+    private __createComponentInstance(componentName:string){
+        if (!this._componentLibRegistry.hasOwnProperty(componentName)) {
+            this._componentLibRegistry[componentName] = {
+                _componentTemplateContent: null,
+                _componentHandlerFn: null
             }
         }
     }
@@ -53,94 +53,94 @@ export class ComponentLibrary {
 
 
 export class StrawberryComponent {
-    private id:string 
-    private name:string 
-    private childNames: Array<string>
-    private childIds: Array<string>
-    private handler: {[key:string]:any} | string | boolean | number | Array<unknown> | null
-    private scopeObject: ScopeObject | null
-    private namedElements: {[key:string]:{state:string|null,template:string}}
-    private htmlTemplate: string
+    private _componentId:string 
+    private _componentName:string 
+    private _componentChildNames: Array<string>
+    private _componentChildIds: Array<string>
+    private _componentHandler: {[key:string]:any} | string | boolean | number | Array<unknown> | null
+    private _scopeRefObject: ScopeObject | null
+    private _namedElementsRegistry: {[key:string]:{_namedElementState:string|null,_namedElementTemplate:string}}
+    private _componentHtmlTemplate: string
     constructor(){
-        this.id = 'unset'
-        this.name = 'unset'
-        this.childNames = []
-        this.childIds = []
-        this.handler = null
-        this.htmlTemplate = '' 
-        this.scopeObject = null
-        this.namedElements = {}
+        this._componentId = 'unset'
+        this._componentName = 'unset'
+        this._componentChildNames = []
+        this._componentChildIds = []
+        this._componentHandler = null
+        this._componentHtmlTemplate = '' 
+        this._scopeRefObject = null
+        this._namedElementsRegistry = {}
     }
-    setId(id:string){
-        this.id = id
+    _setComponentId(id:string){
+        this._componentId = id
         return this
     }
-    setName(name:string){
-        this.name = name
+    _setComponentName(name:string){
+        this._componentName = name
         return this
     }
-    getId(){
-        return this.id
+    _getComponentId(){
+        return this._componentId
     }
-    getName() {
-        return this.name
+    _getComponentName() {
+        return this._componentName
     }
-    addChildName(name:string){
-        if (!this.childNames.includes(name)) {
-            this.childNames.push(name)
+    _addChildName(name:string){
+        if (!this._componentChildNames.includes(name)) {
+            this._componentChildNames.push(name)
         }
     }
-    addChildId(id:string){
-        if (!this.childIds.includes(id)) {
-            this.childIds.push(id)
+    _addChildId(id:string){
+        if (!this._componentChildIds.includes(id)) {
+            this._componentChildIds.push(id)
         }
     }
-    getChildNames(){
-        return this.childNames
+    _getChildNames(){
+        return this._componentChildNames
     }
-    getChildIds(){
-        return this.childIds
+    _getChildIds(){
+        return this._componentChildIds
     }
-    setHandler(handler:{[key:string]:any} | string | boolean | number | Array<unknown>){
-        if (this.handler===null) {
-            this.handler = handler
+    _setHandler(handler:{[key:string]:any} | string | boolean | number | Array<unknown>){
+        if (this._componentHandler===null) {
+            this._componentHandler = handler
         }
     }
-    getHandler(){
-        return this.handler
+    _getHandler(){
+        return this._componentHandler
     }
-    setScopeObject(scopeObject:ScopeObject){
-        if (this.scopeObject===null) {
-            this.scopeObject = scopeObject
+    _setScopeObject(scopeObject:ScopeObject){
+        if (this._scopeRefObject===null) {
+            this._scopeRefObject = scopeObject
         }
     }
-    getScopeObject(){
-        return this.scopeObject
+    _getScopeObject(){
+        return this._scopeRefObject
     }
-    registerNamedElement(name:string,state:string,template:string){
-        if (this.namedElements.hasOwnProperty(name)) return null
+    _registerNamedElement(name:string,state:string,template:string){
+        if (this._namedElementsRegistry.hasOwnProperty(name)) return null
         if (state===null) return null
-        this.namedElements[name] = {
-            state: state,
-            template: template
+        this._namedElementsRegistry[name] = {
+            _namedElementState: state,
+            _namedElementTemplate: template
         }
     }
-    getNamedElementState(name:string) {
-        if (!this.namedElements.hasOwnProperty(name)) return null
-        return this.namedElements[name].state
+    _getNamedElementState(name:string) {
+        if (!this._namedElementsRegistry.hasOwnProperty(name)) return null
+        return this._namedElementsRegistry[name]._namedElementState
     }
-    getNamedElementTemplate(name:string){
-        if (!this.namedElements.hasOwnProperty(name)) return null
-        return this.namedElements[name].template
+    _getNamedElementTemplate(name:string){
+        if (!this._namedElementsRegistry.hasOwnProperty(name)) return null
+        return this._namedElementsRegistry[name]._namedElementTemplate
     }
-    setNamedElementState(name:string,state:string) {
-        if (!this.namedElements.hasOwnProperty(name)) return
-        this.namedElements[name].state = state
+    _setNamedElementState(name:string,state:string) {
+        if (!this._namedElementsRegistry.hasOwnProperty(name)) return
+        this._namedElementsRegistry[name]._namedElementState = state
     }
-    setHtmlTemplate(html:string){
-        this.htmlTemplate = html
+    _setHtmlTemplate(html:string){
+        this._componentHtmlTemplate = html
     }
-    getHtmlTemplate(){
-        return this.htmlTemplate
+    _getHtmlTemplate(){
+        return this._componentHtmlTemplate
     }
 }

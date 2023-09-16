@@ -17,11 +17,11 @@ export function stylesHelper(targetElement:Element,componentObject:StrawberryCom
                 if (isElementLocked(element,appInstance)) continue
                 const argument = AttributeHelper.getXValueFromElAttr(
                     element,
-                    appInstance.getConfig().prefix,
+                    appInstance._getAppConfig().prefix,
                     STYLE_ELEMENT_ATTR
                 )
-                let evaulated = new Resolver().expression(
-                    componentObject.getScopeObject(),
+                let evaulated = new Resolver()._resolveExpression(
+                    componentObject._getScopeObject(),
                     argument
                 )
                 if (evaulated!==null&&evaulated!==''&&evaulated!==undefined) {

@@ -132,7 +132,7 @@ export function getLiveAppElement(appInstance:StrawberryApp):Element{
 
 
 export function selectElementsButNotChildOfComponent(attributeWithValue:string,componentObject:StrawberryComponent,appInstance:StrawberryApp){
-    const componentChildIds = componentObject.getChildIds()
+    const componentChildIds = componentObject._getChildIds()
     let selector = ''
     for (let i = 0; i < componentChildIds.length; i++) {
         const childId = componentChildIds[i]
@@ -147,7 +147,7 @@ export function selectElementsButNotChildOfComponent(attributeWithValue:string,c
     const componentElement = AttributeHelper.getElementByXId(
         getLiveAppElement(appInstance),
         appInstance,
-        componentObject.getId()
+        componentObject._getComponentId()
     )
     return componentElement.querySelectorAll(selector)
 }
@@ -157,11 +157,11 @@ export function getLiveComponentAsTemplate(componentObject:StrawberryComponent,a
     const componentElement = AttributeHelper.getElementByXId(
         getLiveAppElement(appInstance),
         appInstance,
-        componentObject.getId()
+        componentObject._getComponentId()
     )
     if (componentElement===null) return null 
     temporaryElement.innerHTML = componentElement.innerHTML 
-    const componentChildIds = componentObject.getChildIds()
+    const componentChildIds = componentObject._getChildIds()
     for (let i = 0; i < componentChildIds.length; i++) {
         const componentChildId = componentChildIds[i]
         const childComponentElement = AttributeHelper.getElementByXId(

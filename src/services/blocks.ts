@@ -13,7 +13,7 @@ export function blocksService(componentObject:StrawberryComponent,appInstance:St
     const componentElement = AttributeHelper.getElementByXId(
         getLiveAppElement(appInstance),
         appInstance,
-        componentObject.getId()
+        componentObject._getComponentId()
     )
     const allBlockElements = componentElement.querySelectorAll(`[${blockAttrNameAndValue}]`)
     for (let i = 0; i < allBlockElements.length; i++) {

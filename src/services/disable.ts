@@ -5,7 +5,7 @@ import { StrawberryApp } from "../models/strawberry.app";
 
 export function setDisabledElementState(componentObject:StrawberryComponent,appInstance:StrawberryApp,elementName:string,state:'disabled'|'enabled'){
     try {
-        const elementState = componentObject.getNamedElementState(elementName)
+        const elementState = componentObject._getNamedElementState(elementName)
         if (elementState===null) {
             throw new Error('Unregistered componenet member named "'+elementName+'"')
         }
@@ -30,7 +30,7 @@ export function setDisabledElementState(componentObject:StrawberryComponent,appI
             const element = allElements[i] as HTMLInputElement | HTMLSelectElement
             element.disabled = (state==='disabled')
         }
-        componentObject.setNamedElementState(elementName,state)
+        componentObject._setNamedElementState(elementName,state)
     } catch (error) {
         console.error(`strawberry.js: [DisablerService] `+error.message)
     }

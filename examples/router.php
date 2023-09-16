@@ -9,6 +9,12 @@ if ($uri==='/strawberry.js') {
     exit();
 }
 
+if ($uri==='/strawberry.dist.js') {
+    header('Content-type:text/javascript');
+    require 'dist.php';
+    exit();
+}
+
 if ($uri==='/') {
     header('Content-type:text/html');
     require 'index.html';

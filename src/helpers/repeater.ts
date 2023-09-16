@@ -27,7 +27,7 @@ export function repeatHelper(targetElement:Element,componentObject:StrawberryCom
                 REPEAT_ELEMENT_ATTR
             )
 
-            const scopeObject = componentObject.getScopeObject()
+            const scopeObject = componentObject._getScopeObject()
 
             /** Looping through repeatable elements */ 
             for (let i = 0; i < repeatableElements.length; i++) {
@@ -38,7 +38,7 @@ export function repeatHelper(targetElement:Element,componentObject:StrawberryCom
 
                 let expression = AttributeHelper.getXValueFromElAttr(
                     repeatableElement,
-                    appInstance.getConfig().prefix,
+                    appInstance._getAppConfig().prefix,
                     REPEAT_ELEMENT_ATTR
                 )
 
@@ -47,7 +47,7 @@ export function repeatHelper(targetElement:Element,componentObject:StrawberryCom
                 if (refObjName===REPEAT_REFERENCE_TOKEN) {
 
                     // This creates a new object that we can loop through
-                    let repetitions = (new Resolver().expression(scopeObject,aliasObjName))
+                    let repetitions = (new Resolver()._resolveExpression(scopeObject,aliasObjName))
         
                     // How many repitions are to be made
                     let repeatTimes = 0
@@ -60,7 +60,7 @@ export function repeatHelper(targetElement:Element,componentObject:StrawberryCom
         
                 }
 
-                const repeatableObject = new Resolver().expression(scopeObject,refObjName)
+                const repeatableObject = new Resolver()._resolveExpression(scopeObject,refObjName)
 
                 if (undefined!==repeatableObject&&null!==repeatableObject) {
                     let j = 0
@@ -68,7 +68,7 @@ export function repeatHelper(targetElement:Element,componentObject:StrawberryCom
                         // Creating an invidual component for each repititions
                         let childTempComponent = new StrawberryComponent()
 
-                        childTempComponent.setScopeObject({
+                        childTempComponent._setScopeObject({
                             $parent: scopeObject,
                             $index: j++,
                             [aliasObjName]: repeatableObject[key]

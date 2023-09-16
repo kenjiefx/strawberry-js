@@ -16,7 +16,7 @@ export function placeholderHelper(targetElement:Element,componentObject:Strawber
             /** When there are matches */
             if (allMatchedData!==null) {
                 for (var i = 0; i < allMatchedData.length; i++) {
-                    let resolvedExpression = new Resolver().expression(componentObject.getScopeObject(),allMatchedData[i].trim())
+                    let resolvedExpression = new Resolver()._resolveExpression(componentObject._getScopeObject(),allMatchedData[i].trim())
                     if (resolvedExpression===undefined) {
                         resolvedExpression='';
                     }

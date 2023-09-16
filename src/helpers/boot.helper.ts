@@ -23,7 +23,7 @@ export function getAppInstances(appInstance:StrawberryApp):[Element,HTMLTemplate
         const selector = AttributeHelper.makeXAttrWithValue(
             STRAWBERRY_ATTRIBUTE,
             appInstance,
-            appInstance.getName()
+            appInstance._getAppName()
         )
         const domInstances = document.querySelectorAll(`[${selector}]`)
 
@@ -65,7 +65,7 @@ export function bootComponentTemplates(
             // First, we'll check if component has declared template
             const componentName = AttributeHelper.getXValueFromElAttr(
                 component,
-                appInstance.getConfig().prefix,
+                appInstance._getAppConfig().prefix,
                 COMPONENT_ELEMENT_ATTR
             )
             const componentAttribute = AttributeHelper.makeXAttrWithValue(
@@ -89,16 +89,16 @@ export function bootComponentTemplates(
             const componentImplementation  = document.implementation.createHTMLDocument()
             componentImplementation.body.innerHTML = componentTemplateElement.innerHTML
 
-            componentObject.setId(componentId).setName(componentName)
+            componentObject._setComponentId(componentId)._setComponentName(componentName)
 
             /** Registering the Component in the Library */
-            appInstance.getLibrary().component.registerTemplate(
+            appInstance._getAppLibrary().component._registerComponentTemplate(
                 componentName,
                 componentTemplateElement.innerHTML
             )
 
             /** Registering the Component Object */
-            appInstance.getRegistry().component.register({
+            appInstance._getAppRegistry().component._registerComponent({
                 key: componentId,
                 component: componentObject
             })
@@ -109,13 +109,13 @@ export function bootComponentTemplates(
             for (let i = 0; i < childComponents.length; i++) {
 
                 const childComponent     = childComponents[i]
-                const childComponentName = AttributeHelper.getXValueFromElAttr(childComponent,appInstance.getConfig().prefix,COMPONENT_ELEMENT_ATTR)
+                const childComponentName = AttributeHelper.getXValueFromElAttr(childComponent,appInstance._getAppConfig().prefix,COMPONENT_ELEMENT_ATTR)
 
                 const childComponentId   = createComponentId(componentId,i.toString())
                 childComponent.setAttribute('xid',childComponentId)
 
-                componentObject.addChildName(childComponentName)
-                componentObject.addChildId(childComponentId)
+                componentObject._addChildName(childComponentName)
+                componentObject._addChildId(childComponentId)
                 
                 if (componentTree.includes(childComponentName)) {
                     throw new Error(`strawberry.js: [BootError] Circular dependency in component "${childComponentName}" detected: ${JSON.stringify(componentTree)}`)
@@ -131,7 +131,7 @@ export function bootComponentTemplates(
             }
 
             compiledComponentHtml += componentImplementation.body.innerHTML
-            componentObject.setHtmlTemplate(compiledComponentHtml)
+            componentObject._setHtmlTemplate(compiledComponentHtml)
             resolve(compiledComponentHtml)
 
         } catch (error) {
@@ -158,9 +158,9 @@ export function bootCallbackParser(handler:(...args: any[])=>any,type:'component
 
 function isServiceOrFactory(name:string,appInstance:StrawberryApp):'service' | 'factory' | null {
     /** Check if it is a Service */
-    let serviceOb = appInstance.getLibrary().service.getHandler(name)
+    let serviceOb = appInstance._getAppLibrary().service._getServiceHandler(name)
     if (serviceOb!==null) return 'service'
-    let factorHanlder = appInstance.getLibrary().factory.getHandler(name)
+    let factorHanlder = appInstance._getAppLibrary().factory._getFactoryHandler(name)
     if (factorHanlder!==null) return 'factory'
     return null
 }
@@ -168,7 +168,7 @@ function isServiceOrFactory(name:string,appInstance:StrawberryApp):'service' | '
 export function bootFactoryHandler(factoryName:string,appInstance:StrawberryApp):Promise<TypeofFactory>{
     return new Promise(async (resolve,reject)=>{
         try {
-            const factoryHandler = appInstance.getLibrary().factory.getHandler(factoryName) 
+            const factoryHandler = appInstance._getAppLibrary().factory._getFactoryHandler(factoryName) 
             if (factoryHandler===null) {
                 throw new Error(`strawberry.js: [BootError] Unregistered factory callback ${factoryName}.`)
             }
@@ -205,17 +205,17 @@ export function bootFactoryHandler(factoryName:string,appInstance:StrawberryApp)
 export function bootServiceHandler(serviceName:string,appInstance:StrawberryApp):Promise<{[key:string]:any}|null>{
     return new Promise(async (resolve,reject)=>{
         try {
-            let handleOb = appInstance.getRegistry().service.getService(serviceName)
+            let handleOb = appInstance._getAppRegistry().service._getService(serviceName)
             if (handleOb!==null) {
                 resolve(handleOb)
                 return 
             }
-            const serviceLib = appInstance.getLibrary().service.getHandler(serviceName)
+            const serviceLib = appInstance._getAppLibrary().service._getServiceHandler(serviceName)
             if (serviceLib===null) {
                 throw new Error(`strawberry.js: [BootError] Unregistered service callback ${serviceName}.`)
             }
 
-            const serviceHandler = serviceLib.handler
+            const serviceHandler = serviceLib._serviceHandler
 
             const args = await bootCallbackParser(serviceHandler,'service',serviceName)
             handleOb = {}
@@ -238,7 +238,7 @@ export function bootServiceHandler(serviceName:string,appInstance:StrawberryApp)
             }
             
             handleOb = serviceHandler(...injectableArguments)
-            appInstance.getRegistry().service.register(serviceName,handleOb)
+            appInstance._getAppRegistry().service._registerService(serviceName,handleOb)
 
             resolve(handleOb)
 
@@ -254,15 +254,15 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
     return new Promise(async (resolve,reject)=>{
         try {
 
-            if (componentObject.getHandler()!==null) {
+            if (componentObject._getHandler()!==null) {
                 resolve(null)
                 return 
             }
 
-            const componentName    = componentObject.getName()
-            const componentLibrary = appInstance.getLibrary().component
+            const componentName    = componentObject._getComponentName()
+            const componentLibrary = appInstance._getAppLibrary().component
             
-            const componentHandler = componentLibrary.getHandler(componentName)
+            const componentHandler = componentLibrary._getComponentHandler(componentName)
             if (componentHandler===null) {
                 throw new Error(`strawberry.js: [BootError] Unregistered component callback ${componentName}.`)
             }
@@ -270,7 +270,7 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
             const allArguments = await bootCallbackParser(componentHandler,'component',componentName)
 
             const scopeObject:ScopeObject = {}
-            const allChildComponentNames = componentObject.getChildNames().map(childName=>childName.substring(1,childName.length))
+            const allChildComponentNames = componentObject._getChildNames().map(childName=>childName.substring(1,childName.length))
             
             const injectableArguments = []
 
@@ -278,7 +278,7 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                 const argument = allArguments[i]
                 if (argument===SCOPE_ARGUMENT_KEY) {
                     injectableArguments.push(scopeObject)
-                    componentObject.setScopeObject(scopeObject)
+                    componentObject._setScopeObject(scopeObject)
                     continue
                 }
                 if (argument.charAt(0)==='$') {
@@ -316,14 +316,14 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                 }
 
                 /** Service injection */
-                const service = appInstance.getLibrary().service.getHandler(argument)
+                const service = appInstance._getAppLibrary().service._getServiceHandler(argument)
                 if (service!==null) {
                     injectableArguments.push(await bootServiceHandler(argument,appInstance))
                     continue
                 }
 
                 /** Factory injection */
-                const factory = appInstance.getLibrary().factory.getHandler(argument)
+                const factory = appInstance._getAppLibrary().factory._getFactoryHandler(argument)
                 if (factory!==null) {
                     injectableArguments.push(await bootFactoryHandler(argument,appInstance))
                     continue
@@ -336,9 +336,9 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                 
                 /** Get all children with that child component names */
                 const componentElementImplementation = AttributeHelper.getElementByXId(
-                    appInstance.getAppHtmlBody(),
+                    appInstance._getAppHtmlBody(),
                     appInstance,
-                    componentObject.getId()
+                    componentObject._getComponentId()
                 )
                 const childXids = AttributeHelper.getXidsOfChildComponentByName(
                     componentElementImplementation,
@@ -350,7 +350,7 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                 const wrapper:{[key:string]:StrawberryComponent} = {}
                 for (let n = 0; n < childXids.length; n++) {
                     const childXid = childXids[n]
-                    const childComponentObject = appInstance.getRegistry().component.getRegistry()[childXid]
+                    const childComponentObject = appInstance._getAppRegistry().component._getComponentRegistry()[childXid]
                     await bootComponentHandler(
                         childComponentObject,
                         appInstance
@@ -364,7 +364,7 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                             const returns = []
                             for (const xid in target) {
                                 const componentInstance = target[xid]
-                                const handler = componentInstance.getHandler()
+                                const handler = componentInstance._getHandler()
                                 if (typeof handler==='string'
                                 || typeof handler==='number'
                                 || typeof handler==='boolean'
@@ -382,7 +382,7 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                                         }
                                         continue
                                     } else {
-                                        console.warn(`strawberry.js [ComponentError] Calling undefined member property or method "${name.toString()}" from component "${componentInstance.getName()}"`)
+                                        console.warn(`strawberry.js [ComponentError] Calling undefined member property or method "${name.toString()}" from component "${componentInstance._getComponentName()}"`)
                                     }
                                 }
                             }
@@ -395,7 +395,7 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
             }
 
             const handler = componentHandler(...injectableArguments)
-            componentObject.setHandler(handler)
+            componentObject._setHandler(handler)
 
             resolve(null)
 

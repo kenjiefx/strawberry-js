@@ -1,37 +1,34 @@
 export class ServiceLibrary {
-    private registry: {[serviceName:string]:{
-        handler: (...args: any[])=>any|null
+    private _serviceRegistry: {[serviceName:string]:{
+        _serviceHandler: (...args: any[])=>any|null
     }}
     constructor(){
-        this.registry = {}
+        this._serviceRegistry = {}
     }
-    registerHandler(name:string,handler:(...args: any[])=>any){
+    _registerServiceHandler(name:string,handler:(...args: any[])=>any){
         if (handler===null) return 
-        this.registry[name] = {
-            handler: handler
+        this._serviceRegistry[name] = {
+            _serviceHandler: handler
         }
     }
-    getHandler(name:string){
-        if (!this.registry.hasOwnProperty(name)) return null 
-        return this.registry[name]
-    }
-    doServiceExist(name:string){
-        return this.registry.hasOwnProperty(name)
+    _getServiceHandler(name:string){
+        if (!this._serviceRegistry.hasOwnProperty(name)) return null 
+        return this._serviceRegistry[name]
     }
 }
 
 export class ServiceRegistry {
-    registry: {[serviceName:string]:{[key:string]:any}}
+    private _serviceRegistry: {[serviceName:string]:{[key:string]:any}}
     constructor(){
-        this.registry = {}
+        this._serviceRegistry = {}
     }
-    register(serviceName:string,handleOb:{[key:string]:any}){
-        if (this.registry.hasOwnProperty(serviceName)) return null
-        this.registry[serviceName] = handleOb
+    _registerService(serviceName:string,handleOb:{[key:string]:any}){
+        if (this._serviceRegistry.hasOwnProperty(serviceName)) return null
+        this._serviceRegistry[serviceName] = handleOb
     }
-    getService(serviceName:string) {
-        if (!this.registry.hasOwnProperty(serviceName)) return null
-        return this.registry[serviceName]
+    _getService(serviceName:string) {
+        if (!this._serviceRegistry.hasOwnProperty(serviceName)) return null
+        return this._serviceRegistry[serviceName]
     }
 }
 
