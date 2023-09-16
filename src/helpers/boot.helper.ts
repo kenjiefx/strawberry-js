@@ -1,14 +1,16 @@
 
 import { StrawberryComponent } from "../models/component";
 import { StrawberryElement } from "../models/element";
+import { TypeofFactory } from "../models/factory";
 import { ScopeObject } from "../models/scope";
 import { StrawberryApp } from "../models/strawberry.app";
+import { strawberryAppReferenceService } from "../services/app";
 import { blocksService } from "../services/blocks";
 import { disableService } from "../services/disable";
 import { enableService } from "../services/enable";
 import { parentReferenceService } from "../services/parent";
 import { patchEntityService } from "../services/patch";
-import { AttributeHelper, BLOCK_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, DISABLE_ARGUMENT_KEY, ENABLE_ARGUMENT_KEY, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
+import { APP_ARGUMENT_KEY, AttributeHelper, BLOCK_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, DISABLE_ARGUMENT_KEY, ENABLE_ARGUMENT_KEY, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
 import { createComponentId } from "./id.generators";
 
 /**
@@ -142,10 +144,10 @@ export function bootComponentTemplates(
 export function bootCallbackParser(handler:(...args: any[])=>any,type:'component'|'service'|'factory',name:string):Promise<Array<string>>{
     return new Promise((resolve,reject)=>{
         try {
-            const handlerStr = handler.toString()
+            const handlerStr = handler.toString().split('{')[0]
             const matchedFn  = handlerStr.match(/(?<=\().+?(?=\))/g)
             if (matchedFn===null || /[(={})]/g.test(matchedFn[0])) {
-                throw new Error(`strawberry.js: [BootError] Invalid ${type} callback ${name}.`)
+                resolve([])
             }
             resolve(matchedFn[0].split(','))
         } catch (error) {
@@ -158,7 +160,45 @@ function isServiceOrFactory(name:string,appInstance:StrawberryApp):'service' | '
     /** Check if it is a Service */
     let serviceOb = appInstance.getLibrary().service.getHandler(name)
     if (serviceOb!==null) return 'service'
+    let factorHanlder = appInstance.getLibrary().factory.getHandler(name)
+    if (factorHanlder!==null) return 'factory'
     return null
+}
+
+export function bootFactoryHandler(factoryName:string,appInstance:StrawberryApp):Promise<TypeofFactory>{
+    return new Promise(async (resolve,reject)=>{
+        try {
+            const factoryHandler = appInstance.getLibrary().factory.getHandler(factoryName) 
+            if (factoryHandler===null) {
+                throw new Error(`strawberry.js: [BootError] Unregistered factory callback ${factoryName}.`)
+            }
+            const args = await bootCallbackParser(factoryHandler,'service',factoryName)
+            const injectableArguments = []
+            for (let i = 0; i < args.length; i++) {
+                const arg = args[i]
+                if (isServiceOrFactory(arg,appInstance)==='service') {
+                    const depService = await bootServiceHandler(arg,appInstance)
+                    injectableArguments.push(depService)
+                    continue
+                }
+                if (isServiceOrFactory(arg,appInstance)==='factory') {
+                    const depFactory = await bootFactoryHandler(arg,appInstance)
+                    injectableArguments.push(depFactory)
+                    continue
+                }
+                injectableArguments.push(null)
+            }
+            const handleInstance = factoryHandler(...injectableArguments)
+            if (typeof handleInstance === 'function' && handleInstance.prototype && handleInstance.prototype.constructor === handleInstance) {
+                resolve(new handleInstance)
+                return
+            } else {
+                throw new Error(`strawberry.js: [BootError] Factory ${factoryName} must return typeof class reference.`)
+            }
+        } catch (error) {
+            reject(error)
+        }
+    })
 }
 
 
@@ -189,7 +229,12 @@ export function bootServiceHandler(serviceName:string,appInstance:StrawberryApp)
                     injectableArguments.push(depService)
                     continue
                 }
-
+                if (isServiceOrFactory(arg,appInstance)==='factory') {
+                    const depFactory = await bootFactoryHandler(arg,appInstance)
+                    injectableArguments.push(depFactory)
+                    continue
+                }
+                injectableArguments.push(null)
             }
             
             handleOb = serviceHandler(...injectableArguments)
@@ -261,20 +306,28 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                         case PARENT_ARGUMENT_KEY: 
                             injectableArguments.push(parentReferenceService(componentObject,appInstance))
                         break;
+                        case APP_ARGUMENT_KEY: 
+                            injectableArguments.push(strawberryAppReferenceService(componentObject,appInstance))
+                        break;
                         default: 
                         break;
                     }
                     continue
                 }
 
-                /** @TODO Service injection */
+                /** Service injection */
                 const service = appInstance.getLibrary().service.getHandler(argument)
                 if (service!==null) {
                     injectableArguments.push(await bootServiceHandler(argument,appInstance))
                     continue
                 }
 
-                /** @TODO Factory injection */
+                /** Factory injection */
+                const factory = appInstance.getLibrary().factory.getHandler(argument)
+                if (factory!==null) {
+                    injectableArguments.push(await bootFactoryHandler(argument,appInstance))
+                    continue
+                }
 
                 /** Component Injection */
                 if (!allChildComponentNames.includes(argument)) {

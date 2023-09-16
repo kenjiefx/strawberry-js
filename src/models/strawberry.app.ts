@@ -1,9 +1,22 @@
 import { ComponentLibrary, ComponentRegistry } from "./component"
 import { DomImplementationWrapper } from "./dom.implementation.wrapper"
+import { FactoryLibrary, TypeofFactory } from "./factory"
 import { ServiceLibrary, ServiceRegistry } from "./service"
 
 export type StrawberryAppConfig = {
     prefix: string
+}
+
+
+export class AppPublicReference {
+    _afterBootCallbacks:Array<()=>any>
+    constructor(){
+        this._afterBootCallbacks = []
+    }
+    onReady(callBack:()=>any){
+        this._afterBootCallbacks.push(callBack)
+        return (this._afterBootCallbacks.length)-1
+    }
 }
 
 /**
@@ -19,9 +32,11 @@ export class StrawberryApp {
         component: ComponentRegistry
         service: ServiceRegistry
     }
+    private publicRef: AppPublicReference
     private library: {
         component: ComponentLibrary,
-        service: ServiceLibrary
+        service: ServiceLibrary,
+        factory: FactoryLibrary<typeof TypeofFactory>
     }
     private ready: boolean
     constructor({id, name,config}:{
@@ -38,8 +53,10 @@ export class StrawberryApp {
         }
         this.library = {
             component: new ComponentLibrary(),
-            service: new ServiceLibrary()
+            service: new ServiceLibrary(),
+            factory: new FactoryLibrary()
         }
+        this.publicRef = new AppPublicReference()
         this.ready = false
         if (config===undefined) {
             this.config = {
@@ -78,5 +95,11 @@ export class StrawberryApp {
     }
     setReady(){
         this.ready = true
+        this.publicRef._afterBootCallbacks.forEach(callback=>{
+            callback()
+        })
+    }
+    getPublicReference(){
+        return this.publicRef
     }
 }

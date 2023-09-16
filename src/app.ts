@@ -6,6 +6,7 @@ import { sortComponentIds } from "./helpers/id.generators"
 import { renderHelper } from "./helpers/render"
 import { ComponentRegistry } from "./models/component"
 import { StrawberryElement } from "./models/element"
+import { TypeofFactory } from "./models/factory"
 import { StrawberryApp, StrawberryAppConfig } from "./models/strawberry.app"
 
 const BootableApps:Array<StrawberryApp> = []
@@ -22,8 +23,11 @@ const strawberry = window['strawberry'] = {
                     handler
                 )
             },
-            factory:()=>{
-
+            factory:<T extends typeof TypeofFactory>(name:string,reference:()=>T)=>{
+                appInstance.getLibrary().factory.registerHandler(
+                    name,
+                    reference
+                )
             },
             service:(name:string,handler:()=>any)=>{
                 appInstance.getLibrary().service.registerHandler(

@@ -79,10 +79,24 @@
                     }
                 }
             })
-            app.service('UserSvc',(SayHello)=>{
+            app.service('UserSvc',(SayHello,PostFactory)=>{
                 return {
                     sayHello:()=>{
+                        console.log(PostFactory)
                         SayHello.sayNow()
+                    }
+                }
+            })
+            app.factory('PostFactory',()=>{
+                return class Post {}
+            })
+            app.component('Router',function($scope,$app){
+                $app.onReady(()=>{
+                    console.log('THIS WAS CALLED AFTER ONREADY!!!')
+                })
+                return {
+                    callMeAfterSetTimeout:()=>{
+                        console.log('I am called')
                     }
                 }
             })
@@ -97,6 +111,10 @@
         </div>
         <template xstrawberry="MyApp1">
             <div>hello world!</div>
+            <section xcomponent="@Router"></section>
+        </template>
+
+        <template xcomponent="@Router">
             <section xcomponent="@ProfileCard"></section>
             <section xcomponent="@ProfileCard"></section>
             <article xcomponent="@Header"></article>
