@@ -360,7 +360,7 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                 const componentProxy = new Proxy(wrapper, {
                     get: function get(target, name) {
                         return function wrapper() {
-                            // const args = Array.prototype.slice.call(arguments)
+                            const args = Array.prototype.slice.call(arguments)
                             const returns = []
                             for (const xid in target) {
                                 const componentInstance = target[xid]
@@ -376,7 +376,7 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                                     if (handler.hasOwnProperty(name)) {
                                         const handlerInstance = handler[name]
                                         if (handlerInstance instanceof Function) {
-                                            returns.push(handlerInstance())
+                                            returns.push(handlerInstance(...args))
                                         } else {
                                             returns.push(handlerInstance)
                                         }
