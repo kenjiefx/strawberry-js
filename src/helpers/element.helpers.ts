@@ -144,6 +144,10 @@ export function selectElementsButNotChildOfComponent(attributeWithValue:string,c
         selector += ':not(['+childXidAttrName+'])'
     }
     selector += ` > [${attributeWithValue}]`
+    if (componentChildIds.length===0) {
+        const xidAttrName = AttributeHelper.makeXAttrWithValue(STRAWBERRY_ID_ATTR, appInstance, componentObject._getComponentId());
+        selector = `[${xidAttrName}] [${attributeWithValue}]`
+    }
     const componentElement = AttributeHelper.getElementByXId(
         getLiveAppElement(appInstance),
         appInstance,

@@ -11,7 +11,7 @@
                     lastName: 'Macapagal'
                 }
                 setTimeout(()=>{
-                    Header.callMeFromParent()
+                    Header.callMeFromParent('Hallo world!')
                 },500)
                 $scope.isAcceptTerms = false
                 $scope.changeAccept=()=>{
@@ -32,19 +32,25 @@
                     },
                     callMeAfterSetTimeout:()=>{
                         console.log('This is called after set time out 1')
-                        Header.callMeFromParent()
+                        Header.callMeFromParent('grenwsietsg')
+                    },
+                    prop: {
+                        find: 'me'
                     }
                 }
             })
-            app.component('Header',($scope,$disable,$patch,$parent)=>{
+            app.component('Header',($scope,$disable,$patch,$parent,$app)=>{
                 setTimeout(()=>{
                     $scope.firstName = 'Mike'
                     $patch()
                     $parent.get().callMeAfterSetTimeout()
                 },1000)
+                $app.onReady(()=>{
+                    console.log('hello')
+                })
                 $scope.fontColor = 'red'
                 $scope.disableSelect=(button)=>{
-                    console.log(button)
+                    console.log($parent.get().prop)
                     $disable('Countries/Select/List')
                     $parent.get().callMeFromChild()
                 }
@@ -52,13 +58,19 @@
                     console.log(input)
                     await $patch()
                 }
+                $scope.newDate=()=>{
+                    console.log($scope.sampleDate)
+                }
                 return {
                     test:()=>{
                         console.log('Test is accurate!')
                         return 'aaaa'
                     },
-                    callMeFromParent:()=>{
-                        console.log('This is called after set time out 2')
+                    callMeFromParent:(message)=>{
+                        console.log('This is called after set time out 2 '+message)
+                    },
+                    align: {
+                        gset:'asda'
                     }
                 }
             })
@@ -150,6 +162,8 @@
                 <option value="The USA">The USA</option>
             </select>
             <button xclick="disableSelect()">Disable The Select</button>
+            <input type="date" xmodel="sampleDate" xchange="newDate()">
+            <input type="time" xmodel="sampleDate" xchange="newDate()">
         </template>
 
         <template xcomponent="@Footer">
