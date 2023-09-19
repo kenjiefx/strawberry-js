@@ -30,7 +30,8 @@ $reserved = ['ComponentRegistry','_registerComponent','_getComponentRegistry','_
 '_getServiceHandler','_registerService','_getService','_serviceRegistry','_serviceHandler','ServiceLibrary','ServiceRegistry',
 '_afterBootCallbacks','AppPublicReference','StrawberryApp','DomImplementationWrapper',
 '_appName','_appConfig','_appId','_domHtml','_appRegistry','_appPublicRef','_appLibrary','_appReadyStatus','_setAppConfig','_getAppConfig',
-'_getAppName','_getAppId','_setAppHtmlBody','_getAppHtmlBody','_getAppRegistry','_getAppLibrary','_isAppReady','_setAppReadyStatus','_getAppPublicReference'
+'_getAppName','_getAppId','_setAppHtmlBody','_getAppHtmlBody','_getAppRegistry','_getAppLibrary','_isAppReady','_setAppReadyStatus','_getAppPublicReference',
+'_appCompleteStatus','_isAppComplete'
 ];
 
 usort($reserved, function ($a, $b) {

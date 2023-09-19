@@ -135,15 +135,6 @@ DOMHelper.ready(()=>{
                 )
             }
 
-            
-
-
-            /**
-             * @NOTE Temporary only! 
-             * Will need to see how we can transfer properly from DOM implementation
-             * to actual HTML
-             */
-            //appElement.innerHTML = appInstance._getAppHtmlBody().innerHTML
             copyBindElement(appInstance._getAppHtmlBody(),appElement)
             appInstance._setAppReadyStatus()
 

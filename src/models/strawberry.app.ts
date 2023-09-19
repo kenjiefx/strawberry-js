@@ -39,6 +39,7 @@ export class StrawberryApp {
         factory: FactoryLibrary<typeof TypeofFactory>
     }
     private _appReadyStatus: boolean
+    private _appCompleteStatus:boolean
     constructor({id, name,config}:{
         id: number
         name: string,
@@ -58,6 +59,7 @@ export class StrawberryApp {
         }
         this._appPublicRef = new AppPublicReference()
         this._appReadyStatus = false
+        this._appCompleteStatus = false
         if (config===undefined) {
             this._appConfig = {
                 prefix: 'x'
@@ -93,11 +95,15 @@ export class StrawberryApp {
     _isAppReady(){
         return this._appReadyStatus
     }
+    _isAppComplete(){
+        return this._appCompleteStatus
+    }
     _setAppReadyStatus(){
         this._appReadyStatus = true
-        this._appPublicRef._afterBootCallbacks.forEach(callback=>{
-            callback()
+        this._appPublicRef._afterBootCallbacks.forEach(async (callback)=>{
+            await Promise.resolve(callback())
         })
+        this._appCompleteStatus = true
     }
     _getAppPublicReference(){
         return this._appPublicRef
