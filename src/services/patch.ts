@@ -57,6 +57,7 @@ export function patchEntityService(componentObject:StrawberryComponent,appInstan
                 ))
             }
             if (elementsToPatch.length===0||elementsToPatch[0]===null) {
+                if (!appInstance._isAppComplete()) return resolve(null)
                 throw new Error(`Unable to select element to patch`)
             }
 

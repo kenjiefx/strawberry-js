@@ -46,7 +46,11 @@
                     $parent.get().callMeAfterSetTimeout()
                 },1000)
                 $app.onReady(()=>{
-                    console.log('hello')
+                    return new Promise(async (resolve,reject)=>{
+                        console.log('hello')
+                        await $patch()
+                        resolve(null)
+                    })
                 })
                 $scope.fontColor = 'red'
                 $scope.disableSelect=(button)=>{
