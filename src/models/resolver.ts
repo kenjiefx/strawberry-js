@@ -84,6 +84,13 @@ export class Resolver {
                  */
                 let _invokeFunction=(refObject,argScope,functionExpression)=>{
 
+                    /**
+                     * @TODO Need to check cases where this returns undefined
+                     * One example,this returns undefined in cases when the 
+                     * repeats are nested together
+                     */
+                    if (refObject===undefined) return ''
+
                     // Parses function structure
                     let splitfunctionExpression = functionExpression.match(/\(([^)]+)\)/);
                     let funcStruct = functionExpression.split('(');
