@@ -51,7 +51,7 @@ export function modelsHelpers(targetElement:Element,componentObject:StrawberryCo
                                 _assignModelValue(componentObject._getScopeObject(),argument,false):
                                 _assignModelState(element,evaluated)
                         }
-                        if (elementType==='text') {
+                        if (elementType==='text'||elementType==='password'||element.type==='email') {
                             (evaluated===undefined) ?
                                 _assignModelValue(componentObject._getScopeObject(),argument,element.value) :
                                 element.value = evaluated
