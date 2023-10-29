@@ -191,7 +191,7 @@ export function bootFactoryHandler(factoryName:string,appInstance:StrawberryApp)
             }
             const handleInstance = factoryHandler(...injectableArguments)
             if (typeof handleInstance === 'function' && handleInstance.prototype && handleInstance.prototype.constructor === handleInstance) {
-                resolve(new handleInstance)
+                resolve(handleInstance)
                 return
             } else {
                 throw new Error(`strawberry.js: [BootError] Factory ${factoryName} must return typeof class reference.`)
