@@ -6,11 +6,12 @@ import { ScopeObject } from "../models/scope";
 import { StrawberryApp } from "../models/strawberry.app";
 import { strawberryAppReferenceService } from "../services/app";
 import { blocksService } from "../services/blocks";
+import { childrenReferenceService } from "../services/children";
 import { disableService } from "../services/disable";
 import { enableService } from "../services/enable";
 import { parentReferenceService } from "../services/parent";
 import { patchEntityService } from "../services/patch";
-import { APP_ARGUMENT_KEY, AttributeHelper, BLOCK_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, DISABLE_ARGUMENT_KEY, ENABLE_ARGUMENT_KEY, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
+import { APP_ARGUMENT_KEY, AttributeHelper, BLOCK_ARGUMENT_KEY, CHILDREN_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, DISABLE_ARGUMENT_KEY, ENABLE_ARGUMENT_KEY, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE } from "./attributes";
 import { createComponentId } from "./id.generators";
 
 /**
@@ -190,7 +191,7 @@ export function bootFactoryHandler(factoryName:string,appInstance:StrawberryApp)
             }
             const handleInstance = factoryHandler(...injectableArguments)
             if (typeof handleInstance === 'function' && handleInstance.prototype && handleInstance.prototype.constructor === handleInstance) {
-                resolve(new handleInstance)
+                resolve(handleInstance)
                 return
             } else {
                 throw new Error(`strawberry.js: [BootError] Factory ${factoryName} must return typeof class reference.`)
@@ -308,6 +309,9 @@ export function bootComponentHandler(componentObject:StrawberryComponent,appInst
                         break;
                         case APP_ARGUMENT_KEY: 
                             injectableArguments.push(strawberryAppReferenceService(componentObject,appInstance))
+                        break;
+                        case CHILDREN_ARGUMENT_KEY: 
+                            injectableArguments.push(childrenReferenceService(componentObject,appInstance))
                         break;
                         default: 
                         break;

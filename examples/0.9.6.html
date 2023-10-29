@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <title>Test 0.9.6</title>
+        <script type="text/javascript" src="strawberry.dist.js"></script>
+        <script>
+            const app = strawberry.create('MyApp1');
+            app.component('ProfileCard',($scope,$app,$patch,$children)=>{
+                $app.onReady(()=>{
+                    $scope.status = 'ok'
+                    return new Promise((resolve,reject)=>{
+                        $patch()
+                        $children.get('Header')?.render()
+                        $children.get('UnknownChildren')?.render()
+                    })
+                })
+            })
+            app.component('Header',($scope,$patch)=>{
+                $scope.status = 'loading'
+                return {
+                    render:()=>{
+                        $patch()
+                    }
+                }
+            })
+            app.component('LoveButton',($scope)=>{
+            })
+        </script>
+    </head>
+    <body>
+        <div xstrawberry="MyApp1">
+            
+        </div>
+        <template xstrawberry="MyApp1">
+            <section xcomponent="@ProfileCard"></section>
+        </template>
+        <template xcomponent="@ProfileCard">
+            Hello world! 
+            <div xif="status=='ok'">
+                <section xcomponent="@Header"></section>
+            </div>
+        </template>
+        <template xcomponent="@Header">
+            <div xif="status=='ok'">
+                <div id="test_element_id"></div>
+                <section xcomponent="@LoveButton"></section>
+            </div>
+            <div xif="status=='loading'">
+                This component is loading...
+            </div>
+        </template>
+        <template xcomponent="@LoveButton">
+            This is a love button
+        </template>
+    </body>
+</html>

@@ -1,6 +1,6 @@
 /*
 ==========================================
-Strawberry JS (Beta Version 1.0.1)
+Strawberry JS (Beta Version 0.9.6)
 MIT License
 Copyright (c) 2022 Kenjie Terrado
 
@@ -27,35 +27,57 @@ Special Credits to the amazing authors of DomReady libarary!
 */
 
 (() => {
-    function _x3(componentObject, appInstance) {
-        return appInstance._e24();
+    function _e3(componentObject, appInstance) {
+        return appInstance._x25();
     }
 
 
 
-    function _x138(componentObject, appInstance, blockName, callback) {
-        const blockAttrNameAndValue = _x113._a70(_e58, appInstance, blockName);
-        const componentElement = _x113._x114(_e86(appInstance), appInstance, componentObject._a106());
-        const allB_a153s = componentElement.querySelectorAll(`[${blockAttrNameAndValue}]`);
-        for (let i = 0; i < allB_a153s.length; i++) {
-            const element = allB_a153s[i];
+    function _a140(componentObject, appInstance, blockName, callback) {
+        const blockAttrNameAndValue = _x115._e72(_x60, appInstance, blockName);
+        const componentElement = _x115._x116(_x88(appInstance), appInstance, componentObject._e108());
+        const allB_x155s = componentElement.querySelectorAll(`[${blockAttrNameAndValue}]`);
+        for (let i = 0; i < allB_x155s.length; i++) {
+            const element = allB_x155s[i];
             const strawberryElement = new StrawberryElement(element);
             callback(strawberryElement);
         }
     }
 
+    function _a12(componentObject, appInstance) {
+        return {
+            get: (childName) => {
+                if (childName.charAt(0) !== '@')
+                    childName = '@' + childName;
+                let childComponentObject = null;
+                const childIds = componentObject._e152();
+                for (let i = 0; i < childIds.length; i++) {
+                    const childId = childIds[i];
+                    const childComponent = appInstance._x126().component._a26()[childId];
+                    if (childComponent._a84() === childName) {
+                        childComponentObject = childComponent;
+                        break;
+                    }
+                }
+                if (childComponentObject === null)
+                    return null;
+                return childComponentObject._e156();
+            }
+        };
+    }
 
-    function _x13(componentObject, appInstance, elementName, state) {
+
+    function _x14(componentObject, appInstance, elementName, state) {
         try {
-            const elementState = componentObject._a30(elementName);
+            const elementState = componentObject._a32(elementName);
             if (elementState === null) {
                 throw new Error('Unregistered componenet member named "' + elementName + '"');
             }
             if (elementState === state)
                 return;
-            const allDisabledElements = _x1(_x113._a70(_a36, appInstance, elementName), componentObject, appInstance);
+            const allDisabledElements = _x1(_x115._e72(_x38, appInstance, elementName), componentObject, appInstance);
             const allElements = Array.from(allDisabledElements);
-            const allEnabledElements = _x1(_x113._a70(_a45, appInstance, elementName), componentObject, appInstance);
+            const allEnabledElements = _x1(_x115._e72(_x47, appInstance, elementName), componentObject, appInstance);
             allEnabledElements.forEach(allEnabledElement => {
                 allElements.push(allEnabledElement);
             });
@@ -63,45 +85,45 @@ Special Credits to the amazing authors of DomReady libarary!
                 const element = allElements[i];
                 element.disabled = (state === 'disabled');
             }
-            componentObject._e31(elementName, state);
+            componentObject._x33(elementName, state);
         } catch (error) {
             console.error(`strawberry.js: [DisablerService] ` + error.message);
         }
     }
 
-    function _x129(componentObject, appInstance, elementName) {
+    function _x131(componentObject, appInstance, elementName) {
         try {
-            _x13(componentObject, appInstance, elementName, 'disabled');
+            _x14(componentObject, appInstance, elementName, 'disabled');
         } catch (error) {
             console.error(`strawberry.js: [EnablerService] ` + error.message);
         }
     }
 
-    function _e139(componentObject, appInstance, elementName) {
+    function _x141(componentObject, appInstance, elementName) {
         try {
-            _x13(componentObject, appInstance, elementName, 'enabled');
+            _x14(componentObject, appInstance, elementName, 'enabled');
         } catch (error) {
             console.error(`strawberry.js: [EnablerService] ` + error.message);
         }
     }
 
-    function _x23(componentObject, appInstance) {
+    function _a24(componentObject, appInstance) {
         class ParentReferenceTree {
             constructor(id) {
                 this.id = id;
                 const grandParentId = id.substring(0, (id.length - 2));
-                const registry = appInstance._x124().component._x25();
+                const registry = appInstance._x126().component._a26();
                 if (!registry.hasOwnProperty(grandParentId))
                     this.$parent = null;
                 if (grandParentId !== '0')
                     this.$parent = new ParentReferenceTree(grandParentId);
             }
             get() {
-                return registry[parentId]._e154();
+                return registry[parentId]._e156();
             }
         }
-        const parentId = componentObject._a106().substring(0, componentObject._a106().length - 2);
-        const registry = appInstance._x124().component._x25();
+        const parentId = componentObject._e108().substring(0, componentObject._e108().length - 2);
+        const registry = appInstance._x126().component._a26();
         if (!registry.hasOwnProperty(parentId)) {
             return null;
         }
@@ -110,21 +132,21 @@ Special Credits to the amazing authors of DomReady libarary!
 
 
 
-    function _x4(elementToBindTo, componentObject, appInstance) {
+    function _e4(elementToBindTo, componentObject, appInstance) {
         return new Promise(async (resolve, reject) => {
             try {
-                const elementBindFrom = _x21();
-                elementBindFrom.innerHTML = componentObject._a101();
-                await _a147(elementBindFrom, componentObject, appInstance);
-                const childComponentIds = componentObject._a150();
+                const elementBindFrom = _e22();
+                elementBindFrom.innerHTML = componentObject._a103();
+                await _x149(elementBindFrom, componentObject, appInstance);
+                const childComponentIds = componentObject._e152();
                 for (let i = 0; i < childComponentIds.length; i++) {
                     const childComponentId = childComponentIds[i];
-                    const childComponent = _x113._x114(elementBindFrom, appInstance, childComponentId);
+                    const childComponent = _x115._x116(elementBindFrom, appInstance, childComponentId);
                     if (childComponent !== null) {
-                        await _x4(childComponent, appInstance._x124().component._x25()[childComponentId], appInstance);
+                        await _e4(childComponent, appInstance._x126().component._a26()[childComponentId], appInstance);
                     }
                 }
-                _a97(elementBindFrom, elementToBindTo, appInstance, componentObject._a150());
+                _e99(elementBindFrom, elementToBindTo, appInstance, componentObject._e152());
                 resolve(null);
             } catch (error) {
                 reject(error);
@@ -132,47 +154,47 @@ Special Credits to the amazing authors of DomReady libarary!
         });
     }
 
-    function _a71(componentObject, appInstance, blockName) {
+    function _x73(componentObject, appInstance, blockName) {
         return new Promise(async (resolve, reject) => {
             try {
-                if (!appInstance._x160()) {
+                if (!appInstance._x162()) {
                     throw new Error(`Invalid invoking of service when boot is not complete`);
                 }
                 let mode = 'component';
-                let elementsToPatch = [_x113._x114(_e86(appInstance), appInstance, componentObject._a106())];
+                let elementsToPatch = [_x115._x116(_x88(appInstance), appInstance, componentObject._e108())];
                 if (blockName !== undefined && blockName !== null) {
                     mode = 'block';
-                    elementsToPatch = Array.from(_x1(_x113._a70(_e58, appInstance, blockName), componentObject, appInstance));
+                    elementsToPatch = Array.from(_x1(_x115._e72(_x60, appInstance, blockName), componentObject, appInstance));
                 }
                 if (elementsToPatch.length === 0 || elementsToPatch[0] === null) {
-                    if (!appInstance._a134())
+                    if (!appInstance._x136())
                         return resolve(null);
                     throw new Error(`Unable to select element to patch`);
                 }
                 for (let i = 0; i < elementsToPatch.length; i++) {
                     const elementBindTo = elementsToPatch[i];
-                    let elementBindFrom = _x21();
+                    let elementBindFrom = _e22();
                     if (mode === 'component') {
-                        const template = componentObject._a101();
+                        const template = componentObject._a103();
                         elementBindFrom.innerHTML = template;
                     } else {
-                        const template = componentObject._e10(blockName);
+                        const template = componentObject._x10(blockName);
                         elementBindFrom.innerHTML = template;
                     }
-                    await _a147(elementBindFrom, componentObject, appInstance);
-                    _a97(elementBindFrom, elementBindTo, appInstance, componentObject._a150());
+                    await _x149(elementBindFrom, componentObject, appInstance);
+                    _e99(elementBindFrom, elementBindTo, appInstance, componentObject._e152());
                     /**
                      * Find all unrendered child component. This happens usually because of
                      * conditional statements such xif
                      */
-                    const childComponentIds = componentObject._a150();
+                    const childComponentIds = componentObject._e152();
                     for (let k = 0; k < childComponentIds.length; k++) {
                         const childComponentId = childComponentIds[k];
-                        const childComponent = _x113._x114(elementBindTo, appInstance, childComponentId);
+                        const childComponent = _x115._x116(elementBindTo, appInstance, childComponentId);
                         if (childComponent === null)
                             continue;
                         if (childComponent.innerHTML.trim() === '') {
-                            await _x4(childComponent, appInstance._x124().component._x25()[childComponentId], appInstance);
+                            await _e4(childComponent, appInstance._x126().component._a26()[childComponentId], appInstance);
                         }
                     }
                 }
@@ -182,78 +204,79 @@ Special Credits to the amazing authors of DomReady libarary!
             }
         });
     }
-    const _x35 = 'strawberry';
-    const _e126 = 'service_object';
-    const _a127 = 'factory_object';
-    const _x92 = 'component_object';
-    const _a18 = 'component';
-    const _x44 = 'repeat';
-    const _x107 = 'if';
-    const _a83 = 'hide';
-    const _e84 = 'show';
-    const _a55 = 'check';
-    const _x56 = 'style';
-    const _e57 = 'model';
-    const _a36 = 'disable';
-    const _a45 = 'enable';
-    const _a93 = 'click';
-    const _a85 = 'change';
-    const _e94 = 'touch';
-    const _e58 = 'block';
-    const _a59 = '$scope';
-    const _a60 = '$block';
-    const _x46 = '$enable';
-    const _x37 = '$disable';
-    const _a47 = '$parent';
-    const _x61 = '$patch';
-    const _x95 = '$app';
-    const _a62 = 'id';
-    const _x19 = '$$index';
-    const _e96 = 'set';
-    const _e63 = '@';
-    const _e64 = 'event';
-    class _x113 {
+    const _a37 = 'strawberry';
+    const _e128 = 'service_object';
+    const _a129 = 'factory_object';
+    const _a94 = 'component_object';
+    const _e19 = 'component';
+    const _e46 = 'repeat';
+    const _e109 = 'if';
+    const _a85 = 'hide';
+    const _a86 = 'show';
+    const _x57 = 'check';
+    const _a58 = 'style';
+    const _e59 = 'model';
+    const _x38 = 'disable';
+    const _x47 = 'enable';
+    const _x95 = 'click';
+    const _x87 = 'change';
+    const _a96 = 'touch';
+    const _x60 = 'block';
+    const _x61 = '$scope';
+    const _a62 = '$block';
+    const _x48 = '$enable';
+    const _a39 = '$disable';
+    const _e49 = '$parent';
+    const _e30 = '$children';
+    const _x63 = '$patch';
+    const _e97 = '$app';
+    const _a64 = 'id';
+    const _e20 = '$$index';
+    const _e98 = 'set';
+    const _a65 = '@';
+    const _x66 = 'event';
+    class _x115 {
         /**
          * Creates a component attribute with value. Example: `xcomponent="@ComponentName"`
          */
-        static _a69(name, appInstance) {
-            return appInstance._e143().prefix + _a18 + '="@' + name + '"';
+        static _x71(name, appInstance) {
+            return appInstance._e145().prefix + _e19 + '="@' + name + '"';
         }
         /**
          * Creates an attribute with any key. Example: `xsomekeyhere`
          */
-        static _x162(attributeName, appInstance) {
-            return appInstance._e143().prefix + attributeName;
+        static _x164(attributeName, appInstance) {
+            return appInstance._e145().prefix + attributeName;
         }
         /**
          * Creates an attribute with any key, with any value. Example: `xsomekeyhere="value"`
          */
-        static _a70(attributeName, appInstance, value) {
-            return appInstance._e143().prefix + attributeName + '="' + value + '"';
+        static _e72(attributeName, appInstance, value) {
+            return appInstance._e145().prefix + attributeName + '="' + value + '"';
         }
-        static _x48(element, prefix, attributeName) {
+        static _e50(element, prefix, attributeName) {
             const resolvedAttrName = prefix + attributeName;
             return element.getAttribute(resolvedAttrName);
         }
-        static _x114(element, appInstance, xid) {
-            const resolvedXidAttr = appInstance._e143().prefix + _a62 + '="' + xid + '"';
+        static _x116(element, appInstance, xid) {
+            const resolvedXidAttr = appInstance._e145().prefix + _a64 + '="' + xid + '"';
             return element.querySelector(`[${resolvedXidAttr}]`);
         }
-        static _x22(element, appInstance, attributeName) {
-            const resolvedAttrName = this._x162(attributeName, appInstance);
+        static _a23(element, appInstance, attributeName) {
+            const resolvedAttrName = this._x164(attributeName, appInstance);
             return element.querySelectorAll(`[${resolvedAttrName}]`);
         }
-        static _x2(element, appInstance, componentObject, childComponentName) {
+        static _e2(element, appInstance, componentObject, childComponentName) {
             if (!childComponentName.includes('@'))
                 childComponentName = '@' + childComponentName;
             const resultXids = [];
             // Making sure we are only getting direct siblings
-            const childIds = componentObject._a150();
+            const childIds = componentObject._e152();
             for (let i = 0; i < childIds.length; i++) {
                 const childId = childIds[i];
-                const xidAttr = this._a70(_a62, appInstance, childId);
+                const xidAttr = this._e72(_a64, appInstance, childId);
                 const xidElement = element.querySelector(`[${xidAttr}]`);
-                const componentName = xidElement.getAttribute(appInstance._e143().prefix + _a18);
+                const componentName = xidElement.getAttribute(appInstance._e145().prefix + _e19);
                 if (componentName === childComponentName) {
                     resultXids.push(childId);
                 }
@@ -263,21 +286,21 @@ Special Credits to the amazing authors of DomReady libarary!
     }
 
 
-    function _a145(targetElement, componentObject, appInstance) {
+    function _a147(targetElement, componentObject, appInstance) {
         return new Promise((resolve, reject) => {
             try {
-                const allB_a153s = _x113._x22(targetElement, appInstance, _e58);
-                for (let i = 0; i < allB_a153s.length; i++) {
-                    const element = allB_a153s[i];
-                    const blockElName = _x113._x48(element, appInstance._e143().prefix, _e58);
+                const allB_x155s = _x115._a23(targetElement, appInstance, _x60);
+                for (let i = 0; i < allB_x155s.length; i++) {
+                    const element = allB_x155s[i];
+                    const blockElName = _x115._e50(element, appInstance._e145().prefix, _x60);
                     /** Retrieving and registering the template */
-                    const componentTemplate = componentObject._a101();
-                    const tempCompEl = _x21();
+                    const componentTemplate = componentObject._a103();
+                    const tempCompEl = _e22();
                     tempCompEl.innerHTML = componentTemplate;
-                    const selector = _x113._a70(_e58, appInstance, blockElName);
+                    const selector = _x115._e72(_x60, appInstance, blockElName);
                     const tempBlockEl = tempCompEl.querySelector(`[${selector}]`);
-                    if (null === componentObject._a30(blockElName)) {
-                        componentObject._a29(blockElName, 'registered', tempBlockEl.innerHTML);
+                    if (null === componentObject._a32(blockElName)) {
+                        componentObject._a31(blockElName, 'registered', tempBlockEl.innerHTML);
                     }
                 }
                 resolve(null);
@@ -295,9 +318,9 @@ Special Credits to the amazing authors of DomReady libarary!
      * from the DOM. This function will throw an error when either
      * of the two does not exist.
      */
-    function _e108(appInstance) {
+    function _e110(appInstance) {
         try {
-            const selector = _x113._a70(_x35, appInstance, appInstance._e159());
+            const selector = _x115._e72(_a37, appInstance, appInstance._x161());
             const domInstances = document.querySelectorAll(`[${selector}]`);
             if (domInstances.length === 0) {
                 throw new Error(`strawberry.js: [BootError] Unable to find element ${selector}.`);
@@ -323,13 +346,13 @@ Special Credits to the amazing authors of DomReady libarary!
     /**
      *
      */
-    function _x20(componentId, component, appInstance, componentTree) {
+    function _a21(componentId, component, appInstance, componentTree) {
         return new Promise(async (resolve, reject) => {
             try {
                 let compiledComponentHtml = '';
                 // First, we'll check if component has declared template
-                const componentName = _x113._x48(component, appInstance._e143().prefix, _a18);
-                const componentAttribute = _x113._a70(_a18, appInstance, componentName);
+                const componentName = _x115._e50(component, appInstance._e145().prefix, _e19);
+                const componentAttribute = _x115._e72(_e19, appInstance, componentName);
                 const componentSelector = `template[${componentAttribute}]`;
                 const componentTemplateElements = document.querySelectorAll(componentSelector);
                 if (componentTemplateElements.length === 0) {
@@ -339,36 +362,36 @@ Special Credits to the amazing authors of DomReady libarary!
                     throw new Error(`strawberry.js: [BootError] There are appears to be multiple instances of Component template ${componentSelector}.`);
                 }
                 /** Creating the Component Object */
-                const componentObject = new _a43();
+                const componentObject = new _e45();
                 const componentTemplateElement = componentTemplateElements[0];
                 const componentImplementation = document.implementation.createHTMLDocument();
                 componentImplementation.body.innerHTML = componentTemplateElement.innerHTML;
-                componentObject._e105(componentId)._e81(componentName);
+                componentObject._a107(componentId)._x83(componentName);
                 /** Registering the Component in the Library */
-                appInstance._x133().component._a5(componentName, componentTemplateElement.innerHTML);
+                appInstance._x135().component._e5(componentName, componentTemplateElement.innerHTML);
                 /** Registering the Component Object */
-                appInstance._x124().component._x51({
+                appInstance._x126().component._x53({
                     key: componentId,
                     component: componentObject
                 });
                 /** Retrieving and processing of child components **/
-                const selector = _x113._x162(_a18, appInstance);
+                const selector = _x115._x164(_e19, appInstance);
                 const childComponents = componentImplementation.querySelectorAll(`[${selector}]`);
                 for (let i = 0; i < childComponents.length; i++) {
                     const childComponent = childComponents[i];
-                    const childComponentName = _x113._x48(childComponent, appInstance._e143().prefix, _a18);
-                    const childComponentId = _x87(componentId, i.toString());
+                    const childComponentName = _x115._e50(childComponent, appInstance._e145().prefix, _e19);
+                    const childComponentId = _x89(componentId, i.toString());
                     childComponent.setAttribute('xid', childComponentId);
-                    componentObject._e135(childComponentName);
-                    componentObject._e152(childComponentId);
+                    componentObject._x137(childComponentName);
+                    componentObject._a154(childComponentId);
                     if (componentTree.includes(childComponentName)) {
                         throw new Error(`strawberry.js: [BootError] Circular dependency in component "${childComponentName}" detected: ${JSON.stringify(componentTree)}`);
                     }
                     const childComponentTree = [childComponentName, ...componentTree];
-                    childComponent.innerHTML = await _x20(childComponentId, childComponent, appInstance, childComponentTree);
+                    childComponent.innerHTML = await _a21(childComponentId, childComponent, appInstance, childComponentTree);
                 }
                 compiledComponentHtml += componentImplementation.body.innerHTML;
-                componentObject._e100(compiledComponentHtml);
+                componentObject._a102(compiledComponentHtml);
                 resolve(compiledComponentHtml);
             } catch (error) {
                 reject(error);
@@ -376,7 +399,7 @@ Special Credits to the amazing authors of DomReady libarary!
         });
     }
 
-    function _e65(handler, type, name) {
+    function _a67(handler, type, name) {
         return new Promise((resolve, reject) => {
             try {
                 const handlerStr = handler.toString().split('{')[0];
@@ -391,35 +414,35 @@ Special Credits to the amazing authors of DomReady libarary!
         });
     }
 
-    function _e66(name, appInstance) {
+    function _a68(name, appInstance) {
         /** Check if it is a Service */
-        let serviceOb = appInstance._x133().service._a75(name);
+        let serviceOb = appInstance._x135().service._e77(name);
         if (serviceOb !== null)
             return 'service';
-        let factorHanlder = appInstance._x133().factory._e72(name);
+        let factorHanlder = appInstance._x135().factory._a74(name);
         if (factorHanlder !== null)
             return 'factory';
         return null;
     }
 
-    function _x67(factoryName, appInstance) {
+    function _x69(factoryName, appInstance) {
         return new Promise(async (resolve, reject) => {
             try {
-                const factoryHandler = appInstance._x133().factory._e72(factoryName);
+                const factoryHandler = appInstance._x135().factory._a74(factoryName);
                 if (factoryHandler === null) {
                     throw new Error(`strawberry.js: [BootError] Unregistered factory callback ${factoryName}.`);
                 }
-                const args = await _e65(factoryHandler, 'service', factoryName);
+                const args = await _a67(factoryHandler, 'service', factoryName);
                 const injectableArguments = [];
                 for (let i = 0; i < args.length; i++) {
                     const arg = args[i];
-                    if (_e66(arg, appInstance) === 'service') {
-                        const depService = await _a68(arg, appInstance);
+                    if (_a68(arg, appInstance) === 'service') {
+                        const depService = await _a70(arg, appInstance);
                         injectableArguments.push(depService);
                         continue;
                     }
-                    if (_e66(arg, appInstance) === 'factory') {
-                        const depFactory = await _x67(arg, appInstance);
+                    if (_a68(arg, appInstance) === 'factory') {
+                        const depFactory = await _x69(arg, appInstance);
                         injectableArguments.push(depFactory);
                         continue;
                     }
@@ -427,7 +450,7 @@ Special Credits to the amazing authors of DomReady libarary!
                 }
                 const handleInstance = factoryHandler(...injectableArguments);
                 if (typeof handleInstance === 'function' && handleInstance.prototype && handleInstance.prototype.constructor === handleInstance) {
-                    resolve(new handleInstance);
+                    resolve(handleInstance);
                     return;
                 } else {
                     throw new Error(`strawberry.js: [BootError] Factory ${factoryName} must return typeof class reference.`);
@@ -438,38 +461,38 @@ Special Credits to the amazing authors of DomReady libarary!
         });
     }
 
-    function _a68(serviceName, appInstance) {
+    function _a70(serviceName, appInstance) {
         return new Promise(async (resolve, reject) => {
             try {
-                let handleOb = appInstance._x124().service._x157(serviceName);
+                let handleOb = appInstance._x126().service._a159(serviceName);
                 if (handleOb !== null) {
                     resolve(handleOb);
                     return;
                 }
-                const serviceLib = appInstance._x133().service._a75(serviceName);
+                const serviceLib = appInstance._x135().service._e77(serviceName);
                 if (serviceLib === null) {
                     throw new Error(`strawberry.js: [BootError] Unregistered service callback ${serviceName}.`);
                 }
-                const serviceHandler = serviceLib._a119;
-                const args = await _e65(serviceHandler, 'service', serviceName);
+                const serviceHandler = serviceLib._e121;
+                const args = await _a67(serviceHandler, 'service', serviceName);
                 handleOb = {};
                 const injectableArguments = [];
                 for (let i = 0; i < args.length; i++) {
                     const arg = args[i];
-                    if (_e66(arg, appInstance) === 'service') {
-                        const depService = await _a68(arg, appInstance);
+                    if (_a68(arg, appInstance) === 'service') {
+                        const depService = await _a70(arg, appInstance);
                         injectableArguments.push(depService);
                         continue;
                     }
-                    if (_e66(arg, appInstance) === 'factory') {
-                        const depFactory = await _x67(arg, appInstance);
+                    if (_a68(arg, appInstance) === 'factory') {
+                        const depFactory = await _x69(arg, appInstance);
                         injectableArguments.push(depFactory);
                         continue;
                     }
                     injectableArguments.push(null);
                 }
                 handleOb = serviceHandler(...injectableArguments);
-                appInstance._x124().service._e102(serviceName, handleOb);
+                appInstance._x126().service._e104(serviceName, handleOb);
                 resolve(handleOb);
             } catch (error) {
                 reject(error);
@@ -477,57 +500,60 @@ Special Credits to the amazing authors of DomReady libarary!
         });
     }
     /** This is where callback functions to components are being executed */
-    function _a38(componentObject, appInstance) {
+    function _x40(componentObject, appInstance) {
         return new Promise(async (resolve, reject) => {
             try {
-                if (componentObject._e154() !== null) {
+                if (componentObject._e156() !== null) {
                     resolve(null);
                     return;
                 }
-                const componentName = componentObject._x82();
-                const componentLibrary = appInstance._x133().component;
-                const componentHandler = componentLibrary._x33(componentName);
+                const componentName = componentObject._a84();
+                const componentLibrary = appInstance._x135().component;
+                const componentHandler = componentLibrary._x35(componentName);
                 if (componentHandler === null) {
                     throw new Error(`strawberry.js: [BootError] Unregistered component callback ${componentName}.`);
                 }
-                const allArguments = await _e65(componentHandler, 'component', componentName);
+                const allArguments = await _a67(componentHandler, 'component', componentName);
                 const scopeObject = {};
-                const allChildComponentNames = componentObject._x130().map(childName => childName.substring(1, childName.length));
+                const allChildComponentNames = componentObject._e132().map(childName => childName.substring(1, childName.length));
                 const injectableArguments = [];
                 for (let i = 0; i < allArguments.length; i++) {
                     const argument = allArguments[i];
-                    if (argument === _a59) {
+                    if (argument === _x61) {
                         injectableArguments.push(scopeObject);
-                        componentObject._x115(scopeObject);
+                        componentObject._x117(scopeObject);
                         continue;
                     }
                     if (argument.charAt(0) === '$') {
                         switch (argument) {
-                            case _a60:
+                            case _a62:
                                 injectableArguments.push((blockName, callback) => {
-                                    return _x138(componentObject, appInstance, blockName, callback);
+                                    return _a140(componentObject, appInstance, blockName, callback);
                                 });
                                 break;
-                            case _x46:
+                            case _x48:
                                 injectableArguments.push((elementName) => {
-                                    return _e139(componentObject, appInstance, elementName);
+                                    return _x141(componentObject, appInstance, elementName);
                                 });
                                 break;
-                            case _x37:
+                            case _a39:
                                 injectableArguments.push((elementName) => {
-                                    return _x129(componentObject, appInstance, elementName);
+                                    return _x131(componentObject, appInstance, elementName);
                                 });
                                 break;
-                            case _x61:
+                            case _x63:
                                 injectableArguments.push((elementName) => {
-                                    return _a71(componentObject, appInstance, elementName !== null && elementName !== void 0 ? elementName : null);
+                                    return _x73(componentObject, appInstance, elementName !== null && elementName !== void 0 ? elementName : null);
                                 });
                                 break;
-                            case _a47:
-                                injectableArguments.push(_x23(componentObject, appInstance));
+                            case _e49:
+                                injectableArguments.push(_a24(componentObject, appInstance));
                                 break;
-                            case _x95:
-                                injectableArguments.push(_x3(componentObject, appInstance));
+                            case _e97:
+                                injectableArguments.push(_e3(componentObject, appInstance));
+                                break;
+                            case _e30:
+                                injectableArguments.push(_a12(componentObject, appInstance));
                                 break;
                             default:
                                 break;
@@ -535,15 +561,15 @@ Special Credits to the amazing authors of DomReady libarary!
                         continue;
                     }
                     /** Service injection */
-                    const service = appInstance._x133().service._a75(argument);
+                    const service = appInstance._x135().service._e77(argument);
                     if (service !== null) {
-                        injectableArguments.push(await _a68(argument, appInstance));
+                        injectableArguments.push(await _a70(argument, appInstance));
                         continue;
                     }
                     /** Factory injection */
-                    const factory = appInstance._x133().factory._e72(argument);
+                    const factory = appInstance._x135().factory._a74(argument);
                     if (factory !== null) {
-                        injectableArguments.push(await _x67(argument, appInstance));
+                        injectableArguments.push(await _x69(argument, appInstance));
                         continue;
                     }
                     /** Component Injection */
@@ -551,13 +577,13 @@ Special Credits to the amazing authors of DomReady libarary!
                         throw new Error(`strawberry.js: [BootError] @${argument} is not a child component of ${componentName}`);
                     }
                     /** Get all children with that child component names */
-                    const componentElementImplementation = _x113._x114(appInstance._e123(), appInstance, componentObject._a106());
-                    const childXids = _x113._x2(componentElementImplementation, appInstance, componentObject, argument);
+                    const componentElementImplementation = _x115._x116(appInstance._e125(), appInstance, componentObject._e108());
+                    const childXids = _x115._e2(componentElementImplementation, appInstance, componentObject, argument);
                     const wrapper = {};
                     for (let n = 0; n < childXids.length; n++) {
                         const childXid = childXids[n];
-                        const childComponentObject = appInstance._x124().component._x25()[childXid];
-                        await _a38(childComponentObject, appInstance);
+                        const childComponentObject = appInstance._x126().component._a26()[childXid];
+                        await _x40(childComponentObject, appInstance);
                         wrapper[childXid] = childComponentObject;
                     }
                     const componentProxy = new Proxy(wrapper, {
@@ -567,7 +593,7 @@ Special Credits to the amazing authors of DomReady libarary!
                                 const returns = [];
                                 for (const xid in target) {
                                     const componentInstance = target[xid];
-                                    const handler = componentInstance._e154();
+                                    const handler = componentInstance._e156();
                                     if (typeof handler === 'string' ||
                                         typeof handler === 'number' ||
                                         typeof handler === 'boolean') {
@@ -584,7 +610,7 @@ Special Credits to the amazing authors of DomReady libarary!
                                             }
                                             continue;
                                         } else {
-                                            console.warn(`strawberry.js [ComponentError] Calling undefined member property or method "${name.toString()}" from component "${componentInstance._x82()}"`);
+                                            console.warn(`strawberry.js [ComponentError] Calling undefined member property or method "${name.toString()}" from component "${componentInstance._a84()}"`);
                                         }
                                     }
                                 }
@@ -596,7 +622,7 @@ Special Credits to the amazing authors of DomReady libarary!
                     injectableArguments.push(componentProxy);
                 }
                 const handler = componentHandler(...injectableArguments);
-                componentObject._x155(handler);
+                componentObject._x157(handler);
                 resolve(null);
             } catch (error) {
                 reject(error);
@@ -606,20 +632,20 @@ Special Credits to the amazing authors of DomReady libarary!
 
 
 
-    function _a136(targetElement, componentObject, appInstance) {
+    function _x138(targetElement, componentObject, appInstance) {
         return new Promise((resolve, reject) => {
             try {
-                const allCheckedElements = _x113._x22(targetElement, appInstance, _a55);
+                const allCheckedElements = _x115._a23(targetElement, appInstance, _x57);
                 for (let i = 0; i < allCheckedElements.length; i++) {
                     const element = allCheckedElements[i];
-                    if (_x111(element, appInstance))
+                    if (_e113(element, appInstance))
                         continue;
-                    const argument = _x113._x48(element, appInstance._e143().prefix, _a55);
-                    const evalauted = new Resolver()._x73(componentObject._x116(), argument);
+                    const argument = _x115._e50(element, appInstance._e145().prefix, _x57);
+                    const evalauted = new Resolver()._a75(componentObject._e118(), argument);
                     if (typeof evalauted === 'boolean') {
                         evalauted ? element.setAttribute('checked', '') : element.removeAttribute('checked');
                     }
-                    _a153(element, appInstance);
+                    _x155(element, appInstance);
                 }
                 resolve(null);
             } catch (error) {
@@ -628,17 +654,17 @@ Special Credits to the amazing authors of DomReady libarary!
         });
     }
 
-    function _a109(targetElement, componentObject, appInstance) {
+    function _a111(targetElement, componentObject, appInstance) {
         return new Promise((resolve, reject) => {
             try {
-                const allDisabledElements = _x113._x22(targetElement, appInstance, _a36);
+                const allDisabledElements = _x115._a23(targetElement, appInstance, _x38);
                 for (let i = 0; i < allDisabledElements.length; i++) {
                     const element = allDisabledElements[i];
-                    const elementName = _x113._x48(element, appInstance._e143().prefix, _a36);
-                    if (null === componentObject._a30(elementName)) {
-                        componentObject._a29(elementName, 'disabled', '');
+                    const elementName = _x115._e50(element, appInstance._e145().prefix, _x38);
+                    if (null === componentObject._a32(elementName)) {
+                        componentObject._a31(elementName, 'disabled', '');
                     }
-                    element.disabled = (componentObject._a30(elementName) === 'disabled');
+                    element.disabled = (componentObject._a32(elementName) === 'disabled');
                 }
                 resolve(null);
             } catch (error) {
@@ -776,18 +802,18 @@ Special Credits to the amazing authors of DomReady libarary!
     };
     bindReady();
 
-    function _e39(component, childComponentIds, appInstance) {
+    function _x41(component, childComponentIds, appInstance) {
         for (let i = 0; i < childComponentIds.length; i++) {
             const childComponentId = childComponentIds[i];
-            _x113._x114(component, appInstance, childComponentId).innerHTML = '';
+            _x115._x116(component, appInstance, childComponentId).innerHTML = '';
         }
     }
 
-    function _x21() {
+    function _e22() {
         return document.implementation.createHTMLDocument().body;
     }
 
-    function _a110(bindFrom, bindTo) {
+    function _e112(bindFrom, bindTo) {
         if (bindFrom === null)
             return;
         while (bindFrom.childNodes.length > 0) {
@@ -795,46 +821,46 @@ Special Credits to the amazing authors of DomReady libarary!
         }
     }
 
-    function _a97(bindFromEl, bindToEl, appInstance, childComponentIds) {
+    function _e99(bindFromEl, bindToEl, appInstance, childComponentIds) {
         const temporaryChildren = {};
         for (let i = 0; i < childComponentIds.length; i++) {
             const childComponentId = childComponentIds[i];
-            const childTemporaryElement = _x21();
-            const childActualComponent = _x113._x114(bindToEl, appInstance, childComponentId);
+            const childTemporaryElement = _e22();
+            const childActualComponent = _x115._x116(bindToEl, appInstance, childComponentId);
             if (childActualComponent !== null) {
-                _a110(childActualComponent, childTemporaryElement);
+                _e112(childActualComponent, childTemporaryElement);
                 temporaryChildren[childComponentId] = childTemporaryElement;
             }
         }
         bindToEl.innerHTML = '';
-        _a110(bindFromEl, bindToEl);
+        _e112(bindFromEl, bindToEl);
         for (const childComponentId in temporaryChildren) {
-            const childActualComponent = _x113._x114(bindToEl, appInstance, childComponentId);
+            const childActualComponent = _x115._x116(bindToEl, appInstance, childComponentId);
             if (childActualComponent === null)
                 continue;
-            _a110(temporaryChildren[childComponentId], childActualComponent);
+            _e112(temporaryChildren[childComponentId], childActualComponent);
         }
     }
 
-    function _x128(element, comment) {
+    function _a130(element, comment) {
         if (null !== element) {
             element.innerHTML = '';
             element.outerHTML = '<!-- strawberry.js: ' + element.outerHTML + ' | ' + comment + ' -->';
         }
     }
 
-    function _a153(element, appInstance) {
-        const lockAttrName = _x113._x162(_e96, appInstance);
-        element.setAttribute(lockAttrName, _e63);
+    function _x155(element, appInstance) {
+        const lockAttrName = _x115._x164(_e98, appInstance);
+        element.setAttribute(lockAttrName, _a65);
     }
 
-    function _x111(element, appInstance) {
-        const lockAttrName = _x113._x162(_e96, appInstance);
+    function _e113(element, appInstance) {
+        const lockAttrName = _x115._x164(_e98, appInstance);
         return (element.getAttribute(lockAttrName) !== null);
     }
 
-    function _e40(element, eventName, appInstance) {
-        const lockAttrName = _x113._x162(_e64, appInstance);
+    function _x42(element, eventName, appInstance) {
+        const lockAttrName = _x115._x164(_x66, appInstance);
         let result = false;
         const eventsAdded = element.getAttribute(lockAttrName);
         if (eventsAdded === null)
@@ -848,8 +874,8 @@ Special Credits to the amazing authors of DomReady libarary!
         return result;
     }
 
-    function _a98(element, eventName, appInstance) {
-        const lockAttrName = _x113._x162(_e64, appInstance);
+    function _a100(element, eventName, appInstance) {
+        const lockAttrName = _x115._x164(_x66, appInstance);
         const eventsAdded = element.getAttribute(lockAttrName);
         if (eventsAdded === null) {
             element.setAttribute(lockAttrName, eventName);
@@ -864,8 +890,8 @@ Special Credits to the amazing authors of DomReady libarary!
         element.setAttribute(lockAttrName, allEvents.join(','));
     }
 
-    function _e86(appInstance) {
-        const xAppElements = _x113._x22(document.body, appInstance, _x35);
+    function _x88(appInstance) {
+        const xAppElements = _x115._a23(document.body, appInstance, _a37);
         let appElement;
         for (let i = 0; i < xAppElements.length; i++) {
             const element = xAppElements[i];
@@ -877,32 +903,32 @@ Special Credits to the amazing authors of DomReady libarary!
     }
 
     function _x1(attributeWithValue, componentObject, appInstance) {
-        const componentChildIds = componentObject._a150();
+        const componentChildIds = componentObject._e152();
         let selector = '';
         for (let i = 0; i < componentChildIds.length; i++) {
             const childId = componentChildIds[i];
-            const childXidAttrName = _x113._a70(_a62, appInstance, childId);
+            const childXidAttrName = _x115._e72(_a64, appInstance, childId);
             selector += ':not([' + childXidAttrName + '])';
         }
         selector += ` > [${attributeWithValue}]`;
         if (componentChildIds.length === 0) {
-            const xidAttrName = _x113._a70(_a62, appInstance, componentObject._a106());
+            const xidAttrName = _x115._e72(_a64, appInstance, componentObject._e108());
             selector = `[${xidAttrName}] [${attributeWithValue}]`;
         }
-        const componentElement = _x113._x114(_e86(appInstance), appInstance, componentObject._a106());
+        const componentElement = _x115._x116(_x88(appInstance), appInstance, componentObject._e108());
         return componentElement.querySelectorAll(selector);
     }
 
-    function _x6(componentObject, appInstance) {
-        const temporaryElement = _x21();
-        const componentElement = _x113._x114(_e86(appInstance), appInstance, componentObject._a106());
+    function _e6(componentObject, appInstance) {
+        const temporaryElement = _e22();
+        const componentElement = _x115._x116(_x88(appInstance), appInstance, componentObject._e108());
         if (componentElement === null)
             return null;
         temporaryElement.innerHTML = componentElement.innerHTML;
-        const componentChildIds = componentObject._a150();
+        const componentChildIds = componentObject._e152();
         for (let i = 0; i < componentChildIds.length; i++) {
             const componentChildId = componentChildIds[i];
-            const childComponentElement = _x113._x114(temporaryElement, appInstance, componentChildId);
+            const childComponentElement = _x115._x116(temporaryElement, appInstance, componentChildId);
             if (childComponentElement !== null) {
                 childComponentElement.innerHTML = '';
             }
@@ -910,17 +936,17 @@ Special Credits to the amazing authors of DomReady libarary!
         return temporaryElement.innerHTML;
     }
 
-    function _x112(targetElement, componentObject, appInstance) {
+    function _a114(targetElement, componentObject, appInstance) {
         return new Promise((resolve, reject) => {
             try {
-                const allEnabledElements = _x113._x22(targetElement, appInstance, _a45);
+                const allEnabledElements = _x115._a23(targetElement, appInstance, _x47);
                 for (let i = 0; i < allEnabledElements.length; i++) {
                     const element = allEnabledElements[i];
-                    const elementName = _x113._x48(element, appInstance._e143().prefix, _a45);
-                    if (null === componentObject._a30(elementName)) {
-                        componentObject._a29(elementName, 'enabled', '');
+                    const elementName = _x115._e50(element, appInstance._e145().prefix, _x47);
+                    if (null === componentObject._a32(elementName)) {
+                        componentObject._a31(elementName, 'enabled', '');
                     }
-                    element.disabled = (componentObject._a30(elementName) === 'disabled');
+                    element.disabled = (componentObject._a32(elementName) === 'disabled');
                 }
                 resolve(null);
             } catch (error) {
@@ -931,7 +957,7 @@ Special Credits to the amazing authors of DomReady libarary!
 
 
 
-    function _x146(targetElement, componentObject, appInstance) {
+    function _a148(targetElement, componentObject, appInstance) {
         return new Promise((resolve, reject) => {
             try {
                 /**
@@ -939,35 +965,35 @@ Special Credits to the amazing authors of DomReady libarary!
                  * within the component scope
                  */
                 const addEvent = function(scopeObject, eventElement, fnExpression, eventType) {
-                    if (new Resolver()._a117(fnExpression) !== 'function')
+                    if (new Resolver()._a119(fnExpression) !== 'function')
                         return;
                     eventElement.addEventListener(eventType, () => {
-                        new Resolver()._x73(scopeObject, fnExpression, eventElement);
+                        new Resolver()._a75(scopeObject, fnExpression, eventElement);
                     });
                 };
                 const events = [{
                         type: 'click',
-                        attr: _a93
+                        attr: _x95
                     },
                     {
                         type: 'change',
-                        attr: _a85
+                        attr: _x87
                     },
                     {
                         type: 'keyup',
-                        attr: _e94
+                        attr: _a96
                     }
                 ];
                 for (let i = 0; i < events.length; i++) {
                     const event = events[i];
-                    const allEventElements = _x113._x22(targetElement, appInstance, event.attr);
+                    const allEventElements = _x115._a23(targetElement, appInstance, event.attr);
                     for (let k = 0; k < allEventElements.length; k++) {
                         const element = allEventElements[k];
-                        const fnExpression = _x113._x48(element, appInstance._e143().prefix, event.attr);
-                        if (_e40(element, event.type, appInstance))
+                        const fnExpression = _x115._e50(element, appInstance._e145().prefix, event.attr);
+                        if (_x42(element, event.type, appInstance))
                             continue;
-                        addEvent(componentObject._x116(), element, fnExpression, event.type);
-                        _a98(element, event.type, appInstance);
+                        addEvent(componentObject._e118(), element, fnExpression, event.type);
+                        _a100(element, event.type, appInstance);
                     }
                 }
                 resolve(null);
@@ -976,10 +1002,10 @@ Special Credits to the amazing authors of DomReady libarary!
             }
         });
     }
-    const _x87 = (existingComponentId, currentId) => {
+    const _x89 = (existingComponentId, currentId) => {
         return existingComponentId + '.' + currentId;
     };
-    const _e99 = (Ids) => {
+    const _x101 = (Ids) => {
         const sortedIds = [];
         let largest = 1;
         Ids.forEach(Id => {
@@ -999,20 +1025,20 @@ Special Credits to the amazing authors of DomReady libarary!
 
 
 
-    function _x41(targetElement, componentObject, appInstance) {
+    function _x43(targetElement, componentObject, appInstance) {
         return new Promise((resolve, reject) => {
             try {
                 /** Retrieving all elements with ifs conditional */
-                const ifsElements = _x113._x22(targetElement, appInstance, _x107);
+                const ifsElements = _x115._a23(targetElement, appInstance, _e109);
                 for (let i = 0; i < ifsElements.length; i++) {
                     const ifsElement = ifsElements[i];
-                    if (!_x111(ifsElement, appInstance)) {
-                        const ifsArgument = _x113._x48(ifsElement, appInstance._e143().prefix, _x107);
-                        const resolvedIfsValue = new Resolver()._x73(componentObject._x116(), ifsArgument);
+                    if (!_e113(ifsElement, appInstance)) {
+                        const ifsArgument = _x115._e50(ifsElement, appInstance._e145().prefix, _e109);
+                        const resolvedIfsValue = new Resolver()._a75(componentObject._e118(), ifsArgument);
                         if (typeof resolvedIfsValue === 'boolean' && !resolvedIfsValue) {
-                            _x128(ifsElement, 'false');
+                            _a130(ifsElement, 'false');
                         }
-                        _a153(ifsElement, appInstance);
+                        _x155(ifsElement, appInstance);
                     }
                 }
                 resolve(null);
@@ -1023,7 +1049,7 @@ Special Credits to the amazing authors of DomReady libarary!
     }
 
 
-    function _a137(targetElement, componentObject, appInstance) {
+    function _x139(targetElement, componentObject, appInstance) {
         return new Promise((resolve, reject) => {
             try {
                 /**
@@ -1032,24 +1058,24 @@ Special Credits to the amazing authors of DomReady libarary!
                  * is not defined in $scope.user, then this function will add firstName
                  * as member property of $scope.user automatically
                  */
-                const _x89 = (scopeObject, modelExpression, modelValue) => {
-                    const parentObj = new Resolver()._x32(scopeObject, modelExpression);
-                    const childObjExpression = new Resolver()._x74(modelExpression);
+                const _a91 = (scopeObject, modelExpression, modelValue) => {
+                    const parentObj = new Resolver()._e34(scopeObject, modelExpression);
+                    const childObjExpression = new Resolver()._x76(modelExpression);
                     if (undefined !== parentObj)
                         parentObj[childObjExpression] = modelValue;
                 };
-                const _x90 = (modelElement, modelState) => {
+                const _x92 = (modelElement, modelState) => {
                     (typeof modelState == 'boolean' && modelState) ?
                     modelElement.setAttribute('checked', ''):
                         modelElement.removeAttribute('checked');
                 };
-                const allModelElements = _x113._x22(targetElement, appInstance, _e57);
+                const allModelElements = _x115._a23(targetElement, appInstance, _e59);
                 for (let i = 0; i < allModelElements.length; i++) {
                     const element = allModelElements[i];
                     if (element === null)
                         continue;
-                    const argument = _x113._x48(element, appInstance._e143().prefix, _e57);
-                    const evaluated = new Resolver()._x73(componentObject._x116(), argument);
+                    const argument = _x115._e50(element, appInstance._e145().prefix, _e59);
+                    const evaluated = new Resolver()._a75(componentObject._e118(), argument);
                     let isValueStringType = true;
                     if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
                         if ((element instanceof HTMLInputElement)) {
@@ -1057,12 +1083,12 @@ Special Credits to the amazing authors of DomReady libarary!
                             if (elementType === 'radio' || elementType === 'checkbox') {
                                 isValueStringType = false;
                                 (evaluated === undefined) ?
-                                _x89(componentObject._x116(), argument, false):
-                                    _x90(element, evaluated);
+                                _a91(componentObject._e118(), argument, false):
+                                    _x92(element, evaluated);
                             }
-                            if (elementType === 'text') {
+                            if (elementType === 'text' || elementType === 'password' || element.type === 'email') {
                                 (evaluated === undefined) ?
-                                _x89(componentObject._x116(), argument, element.value):
+                                _a91(componentObject._e118(), argument, element.value):
                                     element.value = evaluated;
                             }
                             if (elementType === 'date') {
@@ -1074,7 +1100,7 @@ Special Credits to the amazing authors of DomReady libarary!
                                     }
                                     inputDate = evaluated;
                                 } else {
-                                    _x89(componentObject._x116(), argument, inputDate);
+                                    _a91(componentObject._e118(), argument, inputDate);
                                 }
                                 const numMonth = (inputDate.getMonth() + 1);
                                 const month = (numMonth < 10) ? '0' + numMonth : numMonth;
@@ -1090,7 +1116,7 @@ Special Credits to the amazing authors of DomReady libarary!
                                     }
                                     inputDate = evaluated;
                                 } else {
-                                    _x89(componentObject._x116(), argument, inputDate);
+                                    _a91(componentObject._e118(), argument, inputDate);
                                 }
                                 const hours = (inputDate.getHours() < 10) ? '0' + inputDate.getHours() : inputDate.getHours();
                                 const minutes = (inputDate.getMinutes() < 10) ? '0' + inputDate.getMinutes() : inputDate.getMinutes();
@@ -1100,14 +1126,14 @@ Special Credits to the amazing authors of DomReady libarary!
                         }
                         if ((element instanceof HTMLSelectElement)) {
                             (evaluated === undefined) ?
-                            _x89(componentObject._x116(), argument, element.value):
+                            _a91(componentObject._e118(), argument, element.value):
                                 element.value = evaluated;
                         }
                         element.addEventListener('change', (event) => {
                             const target = event.target;
                             if (target instanceof HTMLInputElement) {
                                 if (target.type === 'date') {
-                                    const newevaluated = new Resolver()._x73(componentObject._x116(), argument);
+                                    const newevaluated = new Resolver()._a75(componentObject._e118(), argument);
                                     const [syear, smonth, sdate] = target.value.split('-');
                                     const year = parseInt(syear);
                                     const month = parseInt(smonth) - 1;
@@ -1118,11 +1144,11 @@ Special Credits to the amazing authors of DomReady libarary!
                                     newevaluated.setFullYear(year);
                                     newevaluated.setMonth(month);
                                     newevaluated.setDate(date);
-                                    _x89(componentObject._x116(), argument, newevaluated);
+                                    _a91(componentObject._e118(), argument, newevaluated);
                                     return;
                                 }
                                 if (target.type === 'time') {
-                                    const newevaluated = new Resolver()._x73(componentObject._x116(), argument);
+                                    const newevaluated = new Resolver()._a75(componentObject._e118(), argument);
                                     const [shour, sminute] = target.value.split(':');
                                     const hour = parseInt(shour);
                                     const minute = parseInt(sminute);
@@ -1131,22 +1157,22 @@ Special Credits to the amazing authors of DomReady libarary!
                                     }
                                     newevaluated.setHours(hour);
                                     newevaluated.setMinutes(minute);
-                                    _x89(componentObject._x116(), argument, newevaluated);
+                                    _a91(componentObject._e118(), argument, newevaluated);
                                     return;
                                 }
-                                _x89(componentObject._x116(), argument, (isValueStringType) ? target.value : target.checked);
+                                _a91(componentObject._e118(), argument, (isValueStringType) ? target.value : target.checked);
                             }
                             if (target instanceof HTMLSelectElement) {
-                                _x89(componentObject._x116(), argument, target.value);
+                                _a91(componentObject._e118(), argument, target.value);
                             }
                         });
                     }
                     if (element.tagName === 'TEXTAREA' && (element instanceof HTMLTextAreaElement)) {
                         (evaluated === undefined) ?
-                        _x89(componentObject._x116(), argument, element.value):
+                        _a91(componentObject._e118(), argument, element.value):
                             element.value = evaluated;
                         element.addEventListener('change', () => {
-                            _x89(componentObject._x116(), argument, element.value);
+                            _a91(componentObject._e118(), argument, element.value);
                         });
                     }
                 }
@@ -1157,7 +1183,7 @@ Special Credits to the amazing authors of DomReady libarary!
         });
     }
 
-    function _e88(targetElement, componentObject, appInstance) {
+    function _x90(targetElement, componentObject, appInstance) {
         return new Promise((resolve, reject) => {
             try {
                 const regularExpression = /(?<=\{{).+?(?=\}})/g;
@@ -1168,7 +1194,7 @@ Special Credits to the amazing authors of DomReady libarary!
                 /** When there are matches */
                 if (allMatchedData !== null) {
                     for (var i = 0; i < allMatchedData.length; i++) {
-                        let resolvedExpression = new Resolver()._x73(componentObject._x116(), allMatchedData[i].trim());
+                        let resolvedExpression = new Resolver()._a75(componentObject._e118(), allMatchedData[i].trim());
                         if (resolvedExpression === undefined) {
                             resolvedExpression = '';
                         }
@@ -1186,20 +1212,20 @@ Special Credits to the amazing authors of DomReady libarary!
 
 
 
-    function _a147(targetElement, componentObject, appInstance, skipEvents = false) {
+    function _x149(targetElement, componentObject, appInstance, skipEvents = false) {
         return new Promise(async (resolve, reject) => {
             try {
-                await _e148(targetElement, componentObject, appInstance);
-                await _x41(targetElement, componentObject, appInstance);
-                await _e88(targetElement, componentObject, appInstance);
-                await _a136(targetElement, componentObject, appInstance);
-                await _x149(targetElement, componentObject, appInstance);
-                await _a137(targetElement, componentObject, appInstance);
-                await _a109(targetElement, componentObject, appInstance);
-                await _x112(targetElement, componentObject, appInstance);
-                await _a145(targetElement, componentObject, appInstance);
+                await _e150(targetElement, componentObject, appInstance);
+                await _x43(targetElement, componentObject, appInstance);
+                await _x90(targetElement, componentObject, appInstance);
+                await _x138(targetElement, componentObject, appInstance);
+                await _e151(targetElement, componentObject, appInstance);
+                await _x139(targetElement, componentObject, appInstance);
+                await _a111(targetElement, componentObject, appInstance);
+                await _a114(targetElement, componentObject, appInstance);
+                await _a147(targetElement, componentObject, appInstance);
                 if (!skipEvents) {
-                    await _x146(targetElement, componentObject, appInstance);
+                    await _a148(targetElement, componentObject, appInstance);
                 }
                 resolve(null);
             } catch (error) {
@@ -1212,31 +1238,31 @@ Special Credits to the amazing authors of DomReady libarary!
 
 
     /** Converts repeat expression into two entites: refObjName and aliasObjName  */
-    function _x12(expression) {
+    function _x13(expression) {
         if (expression.includes('until '))
-            return [_x19, expression.split('until')[1].trim()];
+            return [_e20, expression.split('until')[1].trim()];
         return [
             expression.split(' as ')[0].trim(),
             expression.split(' as ')[1].trim()
         ];
     }
 
-    function _e148(targetElement, componentObject, appInstance) {
+    function _e150(targetElement, componentObject, appInstance) {
         return new Promise(async (resolve, reject) => {
             try {
                 /** Retrieving all repeatable elements */
-                const repeatableElements = _x113._x22(targetElement, appInstance, _x44);
-                const scopeObject = componentObject._x116();
+                const repeatableElements = _x115._a23(targetElement, appInstance, _e46);
+                const scopeObject = componentObject._e118();
                 /** Looping through repeatable elements */
                 for (let i = 0; i < repeatableElements.length; i++) {
                     let repeatableElement = repeatableElements[i];
                     let htmlTemplate = repeatableElement.innerHTML;
                     repeatableElement.innerHTML = '';
-                    let expression = _x113._x48(repeatableElement, appInstance._e143().prefix, _x44);
-                    let [refObjName, aliasObjName] = _x12(expression);
-                    if (refObjName === _x19) {
+                    let expression = _x115._e50(repeatableElement, appInstance._e145().prefix, _e46);
+                    let [refObjName, aliasObjName] = _x13(expression);
+                    if (refObjName === _e20) {
                         // This creates a new object that we can loop through
-                        let repetitions = (new Resolver()._x73(scopeObject, aliasObjName));
+                        let repetitions = (new Resolver()._a75(scopeObject, aliasObjName));
                         // How many repitions are to be made
                         let repeatTimes = 0;
                         if (repetitions instanceof Array)
@@ -1248,21 +1274,21 @@ Special Credits to the amazing authors of DomReady libarary!
                         while (k < repeatTimes)
                             scopeObject.$$index['props' + (k++)] = new Object;
                     }
-                    const repeatableObject = new Resolver()._x73(scopeObject, refObjName);
+                    const repeatableObject = new Resolver()._a75(scopeObject, refObjName);
                     if (undefined !== repeatableObject && null !== repeatableObject) {
                         let j = 0;
                         for (const [key, value] of Object.entries(repeatableObject)) {
                             // Creating an invidual component for each repititions
-                            let childTempComponent = new _a43();
-                            childTempComponent._x115({
+                            let childTempComponent = new _e45();
+                            childTempComponent._x117({
                                 $parent: scopeObject,
                                 $index: j++,
                                 [aliasObjName]: repeatableObject[key]
                             });
-                            const childRepeatElement = _x21();
+                            const childRepeatElement = _e22();
                             childRepeatElement.innerHTML = htmlTemplate;
-                            await _a147(childRepeatElement, childTempComponent, appInstance, true);
-                            _a110(childRepeatElement, repeatableElement);
+                            await _x149(childRepeatElement, childTempComponent, appInstance, true);
+                            _e112(childRepeatElement, repeatableElement);
                         }
                     }
                     //console.log(expression)
@@ -1276,20 +1302,20 @@ Special Credits to the amazing authors of DomReady libarary!
 
 
 
-    function _x149(targetElement, componentObject, appInstance) {
+    function _e151(targetElement, componentObject, appInstance) {
         return new Promise((resolve, reject) => {
             try {
-                const allStyleElements = _x113._x22(targetElement, appInstance, _x56);
+                const allStyleElements = _x115._a23(targetElement, appInstance, _a58);
                 for (let i = 0; i < allStyleElements.length; i++) {
                     const element = allStyleElements[i];
-                    if (_x111(element, appInstance))
+                    if (_e113(element, appInstance))
                         continue;
-                    const argument = _x113._x48(element, appInstance._e143().prefix, _x56);
-                    let evaulated = new Resolver()._x73(componentObject._x116(), argument);
+                    const argument = _x115._e50(element, appInstance._e145().prefix, _a58);
+                    let evaulated = new Resolver()._a75(componentObject._e118(), argument);
                     if (evaulated !== null && evaulated !== '' && evaulated !== undefined) {
                         element.classList.add(evaulated);
                     }
-                    _a153(element, appInstance);
+                    _x155(element, appInstance);
                 }
                 resolve(null);
             } catch (error) {
@@ -1297,145 +1323,145 @@ Special Credits to the amazing authors of DomReady libarary!
             }
         });
     }
-    class _x79 {
+    class _x81 {
         constructor() {
-            this._a52 = {};
+            this._a54 = {};
         }
-        _x51({
+        _x53({
             key,
             component
         }) {
-            this._a52[key] = component;
+            this._a54[key] = component;
         }
-        _x25() {
-            return this._a52;
+        _a26() {
+            return this._a54;
         }
     }
-    class _e91 {
+    class _a93 {
         constructor() {
-            this._x27 = {};
+            this._e28 = {};
         }
-        _a5(componentName, template) {
+        _e5(componentName, template) {
             this._e8(componentName);
-            if (this._x27[componentName]._a9 === null) {
-                this._x27[componentName]._a9 = template;
+            if (this._e28[componentName]._e9 === null) {
+                this._e28[componentName]._e9 = template;
             }
         }
         _x7(componentName, handler) {
             this._e8(componentName);
-            if (this._x27[componentName]._a42 === null) {
-                this._x27[componentName]._a42 = handler;
+            if (this._e28[componentName]._a44 === null) {
+                this._e28[componentName]._a44 = handler;
             }
         }
-        _a26(componentName) {
-            if (!this._x27.hasOwnProperty(componentName))
+        _e27(componentName) {
+            if (!this._e28.hasOwnProperty(componentName))
                 return null;
-            return this._x27[componentName]._a9;
+            return this._e28[componentName]._e9;
         }
-        _x33(componentName) {
-            if (!this._x27.hasOwnProperty(componentName))
+        _x35(componentName) {
+            if (!this._e28.hasOwnProperty(componentName))
                 return null;
-            return this._x27[componentName]._a42;
+            return this._e28[componentName]._a44;
         }
         _e8(componentName) {
-            if (!this._x27.hasOwnProperty(componentName)) {
-                this._x27[componentName] = {
-                    _a9: null,
-                    _a42: null
+            if (!this._e28.hasOwnProperty(componentName)) {
+                this._e28[componentName] = {
+                    _e9: null,
+                    _a44: null
                 };
             }
         }
     }
-    class _a43 {
+    class _e45 {
         constructor() {
-            this._x144 = 'unset';
-            this._a125 = 'unset';
-            this._a34 = [];
-            this._x53 = [];
-            this._e80 = null;
-            this._e17 = '';
-            this._x104 = null;
-            this._e16 = {};
+            this._x146 = 'unset';
+            this._e127 = 'unset';
+            this._x36 = [];
+            this._e55 = [];
+            this._e82 = null;
+            this._a18 = '';
+            this._e106 = null;
+            this._a17 = {};
         }
-        _e105(id) {
-            this._x144 = id;
+        _a107(id) {
+            this._x146 = id;
             return this;
         }
-        _e81(name) {
-            this._a125 = name;
+        _x83(name) {
+            this._e127 = name;
             return this;
         }
-        _a106() {
-            return this._x144;
+        _e108() {
+            return this._x146;
         }
-        _x82() {
-            return this._a125;
+        _a84() {
+            return this._e127;
         }
-        _e135(name) {
-            if (!this._a34.includes(name)) {
-                this._a34.push(name);
+        _x137(name) {
+            if (!this._x36.includes(name)) {
+                this._x36.push(name);
             }
         }
-        _e152(id) {
-            if (!this._x53.includes(id)) {
-                this._x53.push(id);
+        _a154(id) {
+            if (!this._e55.includes(id)) {
+                this._e55.push(id);
             }
         }
-        _x130() {
-            return this._a34;
+        _e132() {
+            return this._x36;
         }
-        _a150() {
-            return this._x53;
+        _e152() {
+            return this._e55;
         }
-        _x155(handler) {
-            if (this._e80 === null) {
-                this._e80 = handler;
+        _x157(handler) {
+            if (this._e82 === null) {
+                this._e82 = handler;
             }
         }
-        _e154() {
-            return this._e80;
+        _e156() {
+            return this._e82;
         }
-        _x115(scopeObject) {
-            if (this._x104 === null) {
-                this._x104 = scopeObject;
+        _x117(scopeObject) {
+            if (this._e106 === null) {
+                this._e106 = scopeObject;
             }
         }
-        _x116() {
-            return this._x104;
+        _e118() {
+            return this._e106;
         }
-        _a29(name, state, template) {
-            if (this._e16.hasOwnProperty(name))
+        _a31(name, state, template) {
+            if (this._a17.hasOwnProperty(name))
                 return null;
             if (state === null)
                 return null;
-            this._e16[name] = {
-                _a54: state,
-                _a28: template
+            this._a17[name] = {
+                _a56: state,
+                _e29: template
             };
         }
-        _a30(name) {
-            if (!this._e16.hasOwnProperty(name))
+        _a32(name) {
+            if (!this._a17.hasOwnProperty(name))
                 return null;
-            return this._e16[name]._a54;
+            return this._a17[name]._a56;
         }
-        _e10(name) {
-            if (!this._e16.hasOwnProperty(name))
+        _x10(name) {
+            if (!this._a17.hasOwnProperty(name))
                 return null;
-            return this._e16[name]._a28;
+            return this._a17[name]._e29;
         }
-        _e31(name, state) {
-            if (!this._e16.hasOwnProperty(name))
+        _x33(name, state) {
+            if (!this._a17.hasOwnProperty(name))
                 return;
-            this._e16[name]._a54 = state;
+            this._a17[name]._a56 = state;
         }
-        _e100(html) {
-            this._e17 = html;
+        _a102(html) {
+            this._a18 = html;
         }
-        _a101() {
-            return this._e17;
+        _a103() {
+            return this._a18;
         }
     }
-    class _e11 {
+    class _a11 {
         constructor(name) {
             this.implementation = document.implementation.createHTMLDocument(name);
         }
@@ -1487,18 +1513,18 @@ Special Credits to the amazing authors of DomReady libarary!
         }
     }
     class TypeofFactory {}
-    class _a131 {
+    class _x133 {
         constructor() {
             this._factoryRegistry = {};
         }
-        _e14(name, handler) {
+        _e15(name, handler) {
             if (handler === null)
                 return;
             this._factoryRegistry[name] = {
                 _factoryHandler: handler,
             };
         }
-        _e72(name) {
+        _a74(name) {
             if (!this._factoryRegistry.hasOwnProperty(name))
                 return null;
             return this._factoryRegistry[name]._factoryHandler;
@@ -1511,29 +1537,29 @@ Special Credits to the amazing authors of DomReady libarary!
 
     class Resolver {
         /**
-         * @method _x73
+         * @method _a75
          * Resolves an expression based on a given object
          * @param object baseObj
          * @param string expression
          *
          * @returns the value of the resolved expression
          */
-        _x73(baseObj, expression, element = null) {
+        _a75(baseObj, expression, element = null) {
             // We first determine what type of expression we will need to resolve.
             // This will be based on the structure of the operation
-            let resolveType = this._a117(expression);
+            let resolveType = this._a119(expression);
             // This is where the actual resolve process takes place
             return this.resolve(baseObj, expression, resolveType, element);
         }
         /**
-         * @method _a117
+         * @method _a119
          * Determines the type of an expression
          * @param string expression
          * @returns type of expression
          *
          * @NOTE: the expression should always have to be a string!
          */
-        _a117(expression) {
+        _a119(expression) {
             if (/^'.*'$/.test(expression))
                 return 'string';
             if (!isNaN(expression))
@@ -1568,12 +1594,12 @@ Special Credits to the amazing authors of DomReady libarary!
                     break;
                     // CASE: OBJECT
                 case 'object':
-                    return this._a156(scopeObj, expression);
+                    return this._a158(scopeObj, expression);
                     break;
                     // CASE: FUNCTION
                 case 'function':
                     /**
-                     * @function _x118
+                     * @function _x120
                      * Invokes/calls a given function based on the function expression
                      *
                      * @param object refObject - The object where the function to invoke is a member of
@@ -1582,7 +1608,14 @@ Special Credits to the amazing authors of DomReady libarary!
                      * @param string functionExpression - The function expression, for example
                      * myFunction(arg)
                      */
-                    let _x118 = (refObject, argScope, functionExpression) => {
+                    let _x120 = (refObject, argScope, functionExpression) => {
+                        /**
+                         * @TODO Need to check cases where this returns undefined
+                         * One example,this returns undefined in cases when the
+                         * repeats are nested together
+                         */
+                        if (refObject === undefined)
+                            return '';
                         // Parses function structure
                         let splitfunctionExpression = functionExpression.match(/\(([^)]+)\)/);
                         let funcStruct = functionExpression.split('(');
@@ -1593,7 +1626,7 @@ Special Credits to the amazing authors of DomReady libarary!
                             var argObj = new Array;
                             let splitFunctionArguments = splitfunctionExpression[1].split(',');
                             for (var i = 0; i < splitFunctionArguments.length; i++) {
-                                argObj.push(this._x73(argScope, splitFunctionArguments[i]));
+                                argObj.push(this._a75(argScope, splitFunctionArguments[i]));
                             }
                             if (element !== null) {
                                 argObj.push(new StrawberryElement(element));
@@ -1626,9 +1659,9 @@ Special Credits to the amazing authors of DomReady libarary!
                     let expressionTest = funcStruct[0].split('.');
                     // If the said function is a method of an object
                     if (expressionTest.length > 1) {
-                        let refObject = this._x73(scopeObj, this._x49(funcStruct[0]));
+                        let refObject = this._a75(scopeObj, this._x51(funcStruct[0]));
                         let funcExpression = expression.split('.').slice(((expressionTest.length) - 1)).join('.');
-                        return _x118(refObject, scopeObj, funcExpression);
+                        return _x120(refObject, scopeObj, funcExpression);
                     }
                     if (!scopeObj.hasOwnProperty(funcStruct[0])) {
                         // if (strawberry.debug) {
@@ -1636,7 +1669,7 @@ Special Credits to the amazing authors of DomReady libarary!
                         // }
                         return '';
                     }
-                    return _x118(scopeObj, scopeObj, expression);
+                    return _x120(scopeObj, scopeObj, expression);
                     break;
                     // CASE: BOOLEAN OPERATION
                 case 'boolOperation':
@@ -1648,16 +1681,16 @@ Special Credits to the amazing authors of DomReady libarary!
                     };
                     if (expression.includes('!==')) {
                         let comparables = expression.split('!==');
-                        return isNotTheSame(this._x73(scopeObj, comparables[0].trim()), this._x73(scopeObj, comparables[1].trim()));
+                        return isNotTheSame(this._a75(scopeObj, comparables[0].trim()), this._a75(scopeObj, comparables[1].trim()));
                     } else if (expression.includes('==')) {
                         let comparables = expression.split('==');
-                        return isTheSame(this._x73(scopeObj, comparables[0].trim()), this._x73(scopeObj, comparables[1].trim()));
+                        return isTheSame(this._a75(scopeObj, comparables[0].trim()), this._a75(scopeObj, comparables[1].trim()));
                     } else if (expression.includes('is not ')) {
                         let comparables = expression.split('is not');
-                        return isNotTheSame(this._x73(scopeObj, comparables[0].trim()), this._x73(scopeObj, comparables[1].trim()));
+                        return isNotTheSame(this._a75(scopeObj, comparables[0].trim()), this._a75(scopeObj, comparables[1].trim()));
                     } else if (expression.includes('is ')) {
                         let comparables = expression.split('is');
-                        return isTheSame(this._x73(scopeObj, comparables[0].trim()), this._x73(scopeObj, comparables[1].trim()));
+                        return isTheSame(this._a75(scopeObj, comparables[0].trim()), this._a75(scopeObj, comparables[1].trim()));
                     } else {}
                     break;
                 case 'number':
@@ -1669,8 +1702,8 @@ Special Credits to the amazing authors of DomReady libarary!
                     for (var i = 0; i < operations.length; i++) {
                         if (expression.includes(operations[i])) {
                             let exp = expression.split(operations[i]);
-                            let left = this._x73(scopeObj, exp[0].trim());
-                            var right = this._x73(scopeObj, exp[1].trim());
+                            let left = this._a75(scopeObj, exp[0].trim());
+                            var right = this._a75(scopeObj, exp[1].trim());
                             finalExpression = left + operations[i] + right;
                         }
                     }
@@ -1678,7 +1711,7 @@ Special Credits to the amazing authors of DomReady libarary!
                     break;
             }
         }
-        _a156(scopeObj, objectExpression) {
+        _a158(scopeObj, objectExpression) {
             if (objectExpression === '$scope') {
                 return scopeObj;
             }
@@ -1692,52 +1725,52 @@ Special Credits to the amazing authors of DomReady libarary!
                 return o[x];
             }, scopeObj);
         }
-        _x49(expression) {
+        _x51(expression) {
             let expressionPieces = expression.split('.');
             if (expressionPieces.length < 2)
                 return '$scope';
             expressionPieces.pop();
             return expressionPieces.join('.');
         }
-        _x74(expression) {
+        _x76(expression) {
             let expressionPieces = expression.split('.');
             return expressionPieces[expressionPieces.length - 1];
         }
-        _x32(baseObj, objExpression) {
-            let parentObjExpression = this._x49(objExpression);
-            return this._x73(baseObj, parentObjExpression);
+        _e34(baseObj, objExpression) {
+            let parentObjExpression = this._x51(objExpression);
+            return this._a75(baseObj, parentObjExpression);
         }
     } {};
-    class _a132 {
+    class _x134 {
         constructor() {
-            this._e103 = {};
+            this._x105 = {};
         }
-        _e15(name, handler) {
+        _a16(name, handler) {
             if (handler === null)
                 return;
-            this._e103[name] = {
-                _a119: handler
+            this._x105[name] = {
+                _e121: handler
             };
         }
-        _a75(name) {
-            if (!this._e103.hasOwnProperty(name))
+        _e77(name) {
+            if (!this._x105.hasOwnProperty(name))
                 return null;
-            return this._e103[name];
+            return this._x105[name];
         }
     }
-    class _a120 {
+    class _a122 {
         constructor() {
-            this._e103 = {};
+            this._x105 = {};
         }
-        _e102(serviceName, handleOb) {
-            if (this._e103.hasOwnProperty(serviceName))
+        _e104(serviceName, handleOb) {
+            if (this._x105.hasOwnProperty(serviceName))
                 return null;
-            this._e103[serviceName] = handleOb;
+            this._x105[serviceName] = handleOb;
         }
-        _x157(serviceName) {
-            if (!this._e103.hasOwnProperty(serviceName))
+        _a159(serviceName) {
+            if (!this._x105.hasOwnProperty(serviceName))
                 return null;
-            return this._e103[serviceName];
+            return this._x105[serviceName];
         }
     }
     class StrawberryService {}
@@ -1745,87 +1778,87 @@ Special Credits to the amazing authors of DomReady libarary!
 
 
 
-    class _x76 {
+    class _x78 {
         constructor() {
-            this._a50 = [];
+            this._a52 = [];
         }
         onReady(callBack) {
-            this._a50.push(callBack);
-            return (this._a50.length) - 1;
+            this._a52.push(callBack);
+            return (this._a52.length) - 1;
         }
     }
     /**
      * The Strawberry app instance created using the
      * `strawberry.create` function
      */
-    class _x140 {
+    class _a142 {
         constructor({
             id,
             name,
             config
         }) {
-            this._a166 = id;
-            this._e164 = name;
-            this._x165 = new _e11(name);
-            this._e151 = {
-                component: new _x79(),
-                service: new _a120()
+            this._e168 = id;
+            this._e166 = name;
+            this._e167 = new _a11(name);
+            this._e153 = {
+                component: new _x81(),
+                service: new _a122()
             };
-            this._e158 = {
-                component: new _e91(),
-                service: new _a132(),
-                factory: new _a131()
+            this._a160 = {
+                component: new _a93(),
+                service: new _x134(),
+                factory: new _x133()
             };
-            this._e141 = new _x76();
-            this._x121 = false;
-            this._x78 = false;
+            this._a143 = new _x78();
+            this._x123 = false;
+            this._a80 = false;
             if (config === undefined) {
-                this._x161 = {
+                this._x163 = {
                     prefix: 'x'
                 };
                 return;
             }
-            this._x161 = config;
+            this._x163 = config;
         }
-        _e142(config) {
-            this._x161 = config;
+        _a144(config) {
+            this._x163 = config;
         }
-        _e143() {
-            return this._x161;
+        _e145() {
+            return this._x163;
         }
-        _e159() {
-            return this._e164;
+        _x161() {
+            return this._e166;
         }
-        _a163() {
-            return this._a166;
+        _x165() {
+            return this._e168;
         }
-        _a122(htmlContent) {
-            this._x165.implementation.body.innerHTML = htmlContent;
+        _a124(htmlContent) {
+            this._e167.implementation.body.innerHTML = htmlContent;
         }
-        _e123() {
-            return this._x165.implementation.body;
+        _e125() {
+            return this._e167.implementation.body;
         }
-        _x124() {
-            return this._e151;
+        _x126() {
+            return this._e153;
         }
-        _x133() {
-            return this._e158;
+        _x135() {
+            return this._a160;
         }
-        _x160() {
-            return this._x121;
+        _x162() {
+            return this._x123;
         }
-        _a134() {
-            return this._x78;
+        _x136() {
+            return this._a80;
         }
-        _a77() {
-            this._x121 = true;
-            this._e141._a50.forEach(async (callback) => {
+        _a79() {
+            this._x123 = true;
+            this._a143._a52.forEach(async (callback) => {
                 await Promise.resolve(callback());
             });
-            this._x78 = true;
+            this._a80 = true;
         }
-        _e24() {
-            return this._e141;
+        _x25() {
+            return this._a143;
         }
     }
 
@@ -1836,22 +1869,22 @@ Special Credits to the amazing authors of DomReady libarary!
     let instanceId = 0;
     const strawberry = window['strawberry'] = {
         create: (appName, config) => {
-            const appInstance = new _x140({
+            const appInstance = new _a142({
                 id: instanceId++,
                 name: appName
             });
             if (config !== undefined)
-                appInstance._e142(config);
+                appInstance._a144(config);
             BootableApps.push(appInstance);
             return {
                 component: (name, handler) => {
-                    appInstance._x133().component._x7('@' + name, handler);
+                    appInstance._x135().component._x7('@' + name, handler);
                 },
                 factory: (name, reference) => {
-                    appInstance._x133().factory._e14(name, reference);
+                    appInstance._x135().factory._e15(name, reference);
                 },
                 service: (name, handler) => {
-                    appInstance._x133().service._e15(name, handler);
+                    appInstance._x135().service._a16(name, handler);
                 }
             };
         }
@@ -1859,54 +1892,54 @@ Special Credits to the amazing authors of DomReady libarary!
     DOMHelper.ready(() => {
         BootableApps.forEach(async (appInstance) => {
             try {
-                const [appElement, templateElement] = _e108(appInstance);
+                const [appElement, templateElement] = _e110(appInstance);
                 /** We'll add the App Template HTML content to the appInstance object */
-                appInstance._a122(templateElement.innerHTML);
+                appInstance._a124(templateElement.innerHTML);
                 /** Compiling all components in the App Template, and their dependencies.*/
-                let componentEls = appInstance._e123().querySelectorAll('[xcomponent]');
+                let componentEls = appInstance._e125().querySelectorAll('[xcomponent]');
                 let componentId = 0;
                 for (let i = 0; i < componentEls.length; i++) {
                     /** Component Element */
                     const componentEl = componentEls[i];
-                    const componentName = _x113._x48(componentEl, appInstance._e143().prefix, _a18);
+                    const componentName = _x115._e50(componentEl, appInstance._e145().prefix, _e19);
                     /** Component IDs would have to be embedded to the xid attribute */
-                    const xid = appInstance._a163().toString() + '.' + (componentId++).toString();
+                    const xid = appInstance._x165().toString() + '.' + (componentId++).toString();
                     componentEl.setAttribute('xid', xid);
                     /**
                      * Retrieving component templates, as well as the templates of their dependencies,
                      * and the dependencies of their dependencies.
                      */
-                    componentEl.innerHTML = await _x20(xid, componentEl, appInstance, [componentName]);
+                    componentEl.innerHTML = await _a21(xid, componentEl, appInstance, [componentName]);
                 }
-                const componentObjects = appInstance._x124().component._x25();
+                const componentObjects = appInstance._x126().component._a26();
                 const componentIdsList = [];
                 for (const componentId in componentObjects) {
                     componentIdsList.push(componentId);
-                    await _a38(componentObjects[componentId], appInstance);
+                    await _x40(componentObjects[componentId], appInstance);
                 }
                 for (const componentId in componentObjects) {
-                    const componentTemporaryElement = _x21();
-                    componentTemporaryElement.innerHTML = componentObjects[componentId]._a101();
-                    _e39(componentTemporaryElement, componentObjects[componentId]._a150(), appInstance);
-                    componentObjects[componentId]._e100(componentTemporaryElement.innerHTML);
+                    const componentTemporaryElement = _e22();
+                    componentTemporaryElement.innerHTML = componentObjects[componentId]._a103();
+                    _x41(componentTemporaryElement, componentObjects[componentId]._e152(), appInstance);
+                    componentObjects[componentId]._a102(componentTemporaryElement.innerHTML);
                 }
                 /** Rendering phase */
                 for (const componentId in componentObjects) {
-                    const targetElement = _x113._x114(appInstance._e123(), appInstance, componentId);
+                    const targetElement = _x115._x116(appInstance._e125(), appInstance, componentId);
                     /**
                      * This happens for the following circumstances:
                      * - When the component is added inside an xif element
                      */
                     if (targetElement === null)
                         continue;
-                    const temporaryElement = _x21();
+                    const temporaryElement = _e22();
                     temporaryElement.innerHTML = targetElement.innerHTML;
-                    _e39(temporaryElement, componentObjects[componentId]._a150(), appInstance);
-                    await _a147(temporaryElement, componentObjects[componentId], appInstance);
-                    _a97(temporaryElement, targetElement, appInstance, componentObjects[componentId]._a150());
+                    _x41(temporaryElement, componentObjects[componentId]._e152(), appInstance);
+                    await _x149(temporaryElement, componentObjects[componentId], appInstance);
+                    _e99(temporaryElement, targetElement, appInstance, componentObjects[componentId]._e152());
                 }
-                _a110(appInstance._e123(), appElement);
-                appInstance._a77();
+                _e112(appInstance._e125(), appElement);
+                appInstance._a79();
             } catch (error) {
                 console.error(error);
             }
