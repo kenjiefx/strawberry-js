@@ -15,7 +15,7 @@ $reserved = ['ComponentRegistry','_registerComponent','_getComponentRegistry','_
 'HIDE_ELEMENT_ATTR','SHOW_ELEMENT_ATTR','CHECK_ELEMENT_ATTR','STYLE_ELEMENT_ATTR','MODEL_ELEMENT_ATTR','DISABLE_ELEMENT_ATTR',
 'ENABLE_ELEMENT_ATTR','CLICK_EVENT_ATTR','CHANGE_EVENT_ATTR','TOUCH_EVENT_ATTR','BLOCK_ELEMENT_ATTR','SCOPE_ARGUMENT_KEY','BLOCK_ARGUMENT_KEY',
 'ENABLE_ARGUMENT_KEY','DISABLE_ARGUMENT_KEY','PARENT_ARGUMENT_KEY','PATCH_ARGUMENT_KEY','APP_ARGUMENT_KEY','STRAWBERRY_ID_ATTR','REPEAT_REFERENCE_TOKEN',
-'LOCK_ID_ATTR_KEY','LOCK_ID_ATTR_VALUE','EVENT_ELEMENT_ATTR',
+'LOCK_ID_ATTR_KEY','LOCK_ID_ATTR_VALUE','EVENT_ELEMENT_ATTR','CHILDREN_ARGUMENT_KEY',
 'blockHelpers','getAppInstances','bootComponentTemplates','bootCallbackParser','isServiceOrFactory','bootFactoryHandler','bootServiceHandler',
 'bootComponentHandler','checkedHelper','disablersHelper','cleanChildComponents','createTemporaryElement','copyBindElement','scopeBindElement',
 'disposeElement','lockElement','isElementLocked','isElementEventLocked','lockElementEvent','getLiveAppElement','selectElementsButNotChildOfComponent',
@@ -31,7 +31,7 @@ $reserved = ['ComponentRegistry','_registerComponent','_getComponentRegistry','_
 '_afterBootCallbacks','AppPublicReference','StrawberryApp','DomImplementationWrapper',
 '_appName','_appConfig','_appId','_domHtml','_appRegistry','_appPublicRef','_appLibrary','_appReadyStatus','_setAppConfig','_getAppConfig',
 '_getAppName','_getAppId','_setAppHtmlBody','_getAppHtmlBody','_getAppRegistry','_getAppLibrary','_isAppReady','_setAppReadyStatus','_getAppPublicReference',
-'_appCompleteStatus','_isAppComplete'
+'_appCompleteStatus','_isAppComplete','childrenReferenceService'
 ];
 
 usort($reserved, function ($a, $b) {
