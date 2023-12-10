@@ -68,7 +68,9 @@ export function scopeBindElement(bindFromEl:Element,bindToEl:Element,appInstance
 export function disposeElement(element:Element,comment:string){
     if (null!==element) {
         element.innerHTML = '';
-        element.outerHTML  = '<!-- strawberry.js: '+element.outerHTML+' | '+comment+' -->';
+        if (element.parentNode !== null) {
+            element.outerHTML  = '<!-- strawberry.js: '+element.outerHTML+' | '+comment+' -->';
+        }
     }
 }
 
