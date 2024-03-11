@@ -6,7 +6,7 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata":true,
         "useDefineForClassFields": false,
-        "outDir": "./build",
+        "outDir": "./export",
         "rootDir":"./src"
     },
     "exclude": ["node_modules"],
