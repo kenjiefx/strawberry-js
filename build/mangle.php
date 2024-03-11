@@ -63,7 +63,7 @@ function mangle(string $source_code): string {
     foreach ($unique_tokens as $unique_token) {
         $source_code = str_replace(
             $unique_token,
-            '_'.['','x','a','e'][rand(1,3)].$i,
+            ['','x','a','e'][rand(1,3)].$i,
             $source_code
         );
         $i++;
