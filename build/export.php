@@ -35,8 +35,7 @@ function export(){
     $locations = [
         ROOT.'/export/services/',
         ROOT.'/export/helpers/',
-        ROOT.'/export/models/',
-        ROOT.'/export/app.js'
+        ROOT.'/export/models/'
     ];
 
     \array_walk($locations, function($location) use (&$script) {
@@ -47,6 +46,10 @@ function export(){
             $script .= clear_ex_im_stmt(file_get_contents($path));
         }
     });
+
+    $script .= clear_ex_im_stmt(
+        file_get_contents(ROOT.'/export/app.js')
+    );
     $script .= '})();'.PHP_EOL;
     return $script;
 }
