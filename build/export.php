@@ -33,6 +33,7 @@ function export(){
 
     $script = '(()=>{'.PHP_EOL;
     $locations = [
+        ROOT.'/export/libraries/',
         ROOT.'/export/services/',
         ROOT.'/export/helpers/',
         ROOT.'/export/models/'
