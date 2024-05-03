@@ -41,6 +41,9 @@ const AppPublicAPI = {
             },
             service: (name:string, handler:()=>any) => {
                 appInstance.__getAppLibrary().__service.__register(name,handler)
+            },
+            helper: (name:string, handler:()=>any) => {
+                appInstance.__getAppLibrary().__helper.__register(name,handler)
             }
         }
     }
