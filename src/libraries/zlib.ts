@@ -3,7 +3,7 @@ import { TypeofFactory, __FactoryLibrary } from "./factory"
 import { __ServiceLibrary } from "./service"
 
 /**
- * The App library contains all the registered Components, Services, 
+ * The App library contains all the usable Components, Services, 
  * and Factories declared from the frontend.
  */
 export class __AppLibrary {

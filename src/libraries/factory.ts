@@ -24,7 +24,8 @@ export class __FactoryLibrary<T extends new (...args: any[]) => any> {
     }
 
     /** Retrievs a handler */
-    __getHandler (name:string){
-        this.__registry[name] ?? null
+    __getHandler (name:string): ((...args: any[])=>T) | null {
+        if (!(name in this.__registry)) return null 
+        return this.__registry[name].__handler
     }
 }

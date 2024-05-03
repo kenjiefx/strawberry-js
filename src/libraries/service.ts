@@ -21,8 +21,9 @@ export class __ServiceLibrary {
     }
 
     /** Retrievs a handler */
-    __getHandler (name:string){
-        this.__registry[name] ?? null
+    __getHandler (name:string): {__handler: (...args: any[])=>any|null} | null {
+        if (!(name in this.__registry)) return null 
+        return this.__registry[name]
     }
 
 }

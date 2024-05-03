@@ -36,7 +36,9 @@ function export(){
         ROOT.'/export/libraries/',
         ROOT.'/export/services/',
         ROOT.'/export/helpers/',
-        ROOT.'/export/models/'
+        ROOT.'/export/registries/',
+        ROOT.'/export/models/',
+        ROOT.'/export/renders/'
     ];
 
     \array_walk($locations, function($location) use (&$script) {
