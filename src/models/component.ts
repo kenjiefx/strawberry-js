@@ -1,60 +1,8 @@
 import { ScopeObject } from "./scope"
 
-export class ComponentRegistry {
-    private _componentRegistry: {[key:string]:StrawberryComponent}
-    constructor(){
-        this._componentRegistry = {}
-    }
-    _registerComponent({key,component}:{key:string,component:StrawberryComponent}){
-        this._componentRegistry[key] = component
-    }
-    _getComponentRegistry(){
-        return this._componentRegistry
-    }
-}
-
-export class ComponentLibrary {
-    private _componentLibRegistry: {[componentName:string]:{
-        _componentTemplateContent: string|null,
-        _componentHandlerFn: (...args: any[])=>any|null
-    }}
-    constructor(){
-        this._componentLibRegistry = {}
-    }
-    _registerComponentTemplate(componentName:string,template:string) {
-        this.__createComponentInstance(componentName)
-        if (this._componentLibRegistry[componentName]._componentTemplateContent===null) {
-            this._componentLibRegistry[componentName]._componentTemplateContent = template
-        }
-    }
-    _registerComponentHandler(componentName:string,handler:()=>any){
-        this.__createComponentInstance(componentName)
-        if (this._componentLibRegistry[componentName]._componentHandlerFn===null) {
-            this._componentLibRegistry[componentName]._componentHandlerFn = handler
-        }
-    }
-    _getComponentTemplate(componentName:string){
-        if (!this._componentLibRegistry.hasOwnProperty(componentName)) return null
-        return this._componentLibRegistry[componentName]._componentTemplateContent
-    }
-    _getComponentHandler(componentName:string){
-        if (!this._componentLibRegistry.hasOwnProperty(componentName)) return null
-        return this._componentLibRegistry[componentName]._componentHandlerFn
-    }
-    private __createComponentInstance(componentName:string){
-        if (!this._componentLibRegistry.hasOwnProperty(componentName)) {
-            this._componentLibRegistry[componentName] = {
-                _componentTemplateContent: null,
-                _componentHandlerFn: null
-            }
-        }
-    }
-}
-
-
-export class StrawberryComponent {
-    private _componentId:string 
-    private _componentName:string 
+export class __StrawberryComponent {
+    private _componentId: string 
+    private _componentName: string 
     private _componentChildNames: Array<string>
     private _componentChildIds: Array<string>
     private _componentHandler: {[key:string]:any} | string | boolean | number | Array<unknown> | null
@@ -71,53 +19,53 @@ export class StrawberryComponent {
         this._scopeRefObject = null
         this._namedElementsRegistry = {}
     }
-    _setComponentId(id:string){
+    __setId(id:string){
         this._componentId = id
         return this
     }
-    _setComponentName(name:string){
+    __setName(name:string){
         this._componentName = name
         return this
     }
-    _getComponentId(){
+    __getId(){
         return this._componentId
     }
-    _getComponentName() {
+    __getName() {
         return this._componentName
     }
-    _addChildName(name:string){
+    __addChildName(name:string){
         if (!this._componentChildNames.includes(name)) {
             this._componentChildNames.push(name)
         }
     }
-    _addChildId(id:string){
+    __addChildId(id:string){
         if (!this._componentChildIds.includes(id)) {
             this._componentChildIds.push(id)
         }
     }
-    _getChildNames(){
+    __getChildNames(){
         return this._componentChildNames
     }
-    _getChildIds(){
+    __getChildIds(){
         return this._componentChildIds
     }
-    _setHandler(handler:{[key:string]:any} | string | boolean | number | Array<unknown>){
+    __setHandler(handler:{[key:string]:any} | string | boolean | number | Array<unknown>){
         if (this._componentHandler===null) {
             this._componentHandler = handler
         }
     }
-    _getHandler(){
+    __getHandler(){
         return this._componentHandler
     }
-    _setScopeObject(scopeObject:ScopeObject){
+    __setScopeObject(scopeObject:ScopeObject){
         if (this._scopeRefObject===null) {
             this._scopeRefObject = scopeObject
         }
     }
-    _getScopeObject(){
-        return this._scopeRefObject
+    __getScopeObject(): ScopeObject {
+        return this._scopeRefObject as ScopeObject
     }
-    _registerNamedElement(name:string,state:string,template:string){
+    __registerNamedElement(name:string,state:string,template:string){
         if (this._namedElementsRegistry.hasOwnProperty(name)) return null
         if (state===null) return null
         this._namedElementsRegistry[name] = {
@@ -125,22 +73,22 @@ export class StrawberryComponent {
             _namedElementTemplate: template
         }
     }
-    _getNamedElementState(name:string) {
+    __getNamedElementState(name:string) {
         if (!this._namedElementsRegistry.hasOwnProperty(name)) return null
         return this._namedElementsRegistry[name]._namedElementState
     }
-    _getNamedElementTemplate(name:string){
+    __getNamedElementTemplate(name:string){
         if (!this._namedElementsRegistry.hasOwnProperty(name)) return null
         return this._namedElementsRegistry[name]._namedElementTemplate
     }
-    _setNamedElementState(name:string,state:string) {
+    __setNamedElementState(name:string,state:string) {
         if (!this._namedElementsRegistry.hasOwnProperty(name)) return
         this._namedElementsRegistry[name]._namedElementState = state
     }
-    _setHtmlTemplate(html:string){
+    __setHtmlTemplate(html:string){
         this._componentHtmlTemplate = html
     }
-    _getHtmlTemplate(){
+    __getHtmlTemplate(){
         return this._componentHtmlTemplate
     }
 }

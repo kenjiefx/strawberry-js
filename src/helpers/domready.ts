@@ -12,7 +12,7 @@ const browser = {
 
 let readyBound = false
 let isReady = false
-let readyList = []
+let readyList:Array<()=>any> = []
 
 // Handle when the DOM is ready
 function domReady() {

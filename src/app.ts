@@ -1,76 +1,90 @@
-import { AttributeHelper, COMPONENT_ELEMENT_ATTR } from "./helpers/attributes"
-import { getAppInstances, bootComponentTemplates, bootComponentHandler } from "./helpers/boot.helper"
-import { DOMHelper } from "./helpers/domready"
-import { cleanChildComponents, copyBindElement, createTemporaryElement, scopeBindElement } from "./helpers/element.helpers"
-import { sortComponentIds } from "./helpers/id.generators"
-import { renderHelper } from "./helpers/render"
-import { ComponentRegistry } from "./models/component"
-import { StrawberryElement } from "./models/element"
-import { TypeofFactory } from "./models/factory"
-import { StrawberryApp, StrawberryAppConfig } from "./models/strawberry.app"
+import { COMPONENT_ELEMENT_ATTR, __AttributeHelper } from "./helpers/attributes";
+import { __bootComponentHandler, __bootComponentTemplates, __getAppInstances } from "./helpers/boot";
+import { DOMHelper } from "./helpers/domready";
+import { __cleanChildComponents, __copyBindElement, __createTemporaryElement, __scopeBindElement } from "./helpers/element.helpers";
+import { StrawberryAppConfiguration, __StrawberryApp } from "./models/strawberry";
+import { __renderHelper } from "./renders/zrender";
 
-const BootableApps:Array<StrawberryApp> = []
+/** 
+ * Stores all created StrawberryApp instances
+ */
+const StrawberryAppInstances: Array<__StrawberryApp> = []
+
+/**
+ * This value increments, serving as the unique id 
+ * of the StrawberryApp instance.
+ */
 let instanceId = 0
-const strawberry = window['strawberry'] = {
-    create:(appName:string,config?:StrawberryAppConfig)=>{
-        const appInstance = new StrawberryApp({id:instanceId++,name:appName})
-        if (config!==undefined) appInstance._setAppConfig(config)
-        BootableApps.push(appInstance)
+
+/**
+ * Attached to the window object to provide a simple interface to interact with 
+ * the Strawberry framework code. It allows for creating instances of the app, managing
+ * components, and more. This aims to simplify and provide a clean and intuitive 
+ * interface for working with the application.
+ */
+const AppPublicAPI = {
+    create:(name: string, config?: StrawberryAppConfiguration)=>{
+        const appInstance = new __StrawberryApp({
+            __id: instanceId++,
+            __name: name
+        })
+        if (config!==undefined) {
+            appInstance.__setConfiguration(config)
+        }
+        StrawberryAppInstances.push(appInstance)
         return {
-            component:(name:string,handler:()=>any)=>{
-                appInstance._getAppLibrary().component._registerComponentHandler(
-                    '@'+name,
-                    handler
-                )
+            component: (name:string, handler:()=>any) => {
+                appInstance.__getAppLibrary().__component.__setHandler(`@${name}`,handler)
             },
-            factory:<T extends typeof TypeofFactory>(name:string,reference:()=>T)=>{
-                appInstance._getAppLibrary().factory._registerFactoryHandler(
-                    name,
-                    reference
-                )
+            factory: (name:string, handler:()=>any) => {
+                appInstance.__getAppLibrary().__factory.__register(name,handler)
             },
-            service:(name:string,handler:()=>any)=>{
-                appInstance._getAppLibrary().service._registerServiceHandler(
-                    name,
-                    handler
-                )
+            service: (name:string, handler:()=>any) => {
+                appInstance.__getAppLibrary().__service.__register(name,handler)
             }
         }
     }
 }
 
+const strawberry = window['strawberry'] = AppPublicAPI
 DOMHelper.ready(()=>{
-    BootableApps.forEach(async (appInstance)=>{
+    StrawberryAppInstances.forEach(async (appInstance) => {
         try {
-            const [appElement,templateElement] = getAppInstances(appInstance)
+            const [appElement,templateElement] = __getAppInstances(appInstance)
 
             /** We'll add the App Template HTML content to the appInstance object */
-            appInstance._setAppHtmlBody(templateElement.innerHTML)
+            appInstance.__setHtmlBody(templateElement.innerHTML)
 
             /** Compiling all components in the App Template, and their dependencies.*/
-            let componentEls = appInstance._getAppHtmlBody().querySelectorAll('[xcomponent]')
+            const xcomponent = __AttributeHelper.__makeXAttr(COMPONENT_ELEMENT_ATTR,appInstance)
+            let componentEls = appInstance.__getHtmlBody().querySelectorAll(`[${xcomponent}]`)
             let componentId  = 0
-
+            
             for (let i = 0; i < componentEls.length; i++) {
 
                 /** Component Element */
                 const componentEl   = componentEls[i]
-                const componentName = AttributeHelper.getXValueFromElAttr(
+                const componentName = __AttributeHelper.__getXValueFromElAttr(
                     componentEl,
-                    appInstance._getAppConfig().prefix,
+                    appInstance.__getConfiguration().prefix,
                     COMPONENT_ELEMENT_ATTR
                 )
+
+                if (componentName===null) {
+                    continue
+                }
                 
 
                 /** Component IDs would have to be embedded to the xid attribute */
-                const xid = appInstance._getAppId().toString()+'.'+(componentId++).toString()
-                componentEl.setAttribute('xid',xid)
+                const xid     = appInstance.__getId().toString()+'.'+(componentId++).toString()
+                const xidAttr = __AttributeHelper.__makeXAttr('id',appInstance)
+                componentEl.setAttribute(xidAttr,xid)
 
                 /** 
                  * Retrieving component templates, as well as the templates of their dependencies,
                  * and the dependencies of their dependencies.
                  */
-                componentEl.innerHTML = await bootComponentTemplates(
+                componentEl.innerHTML = await __bootComponentTemplates(
                     xid,
                     componentEl,
                     appInstance,
@@ -79,32 +93,32 @@ DOMHelper.ready(()=>{
 
             }
 
-            const componentObjects = appInstance._getAppRegistry().component._getComponentRegistry()
-            const componentIdsList = []
+            const componentObjects = appInstance.__getAppRegistry().__component.__get()
+            const componentIdsList:Array<string> = []
             for (const componentId in componentObjects) {
                 componentIdsList.push(componentId)
-                await bootComponentHandler(
+                await __bootComponentHandler(
                     componentObjects[componentId],
                     appInstance
                 )
             }
 
             for (const componentId in componentObjects) {
-                const componentTemporaryElement = createTemporaryElement()
-                componentTemporaryElement.innerHTML = componentObjects[componentId]._getHtmlTemplate()
-                cleanChildComponents(
+                const componentTemporaryElement = __createTemporaryElement()
+                componentTemporaryElement.innerHTML = componentObjects[componentId].__getHtmlTemplate()
+                __cleanChildComponents(
                     componentTemporaryElement,
-                    componentObjects[componentId]._getChildIds(),
+                    componentObjects[componentId].__getChildIds(),
                     appInstance
                 )
-                componentObjects[componentId]._setHtmlTemplate(componentTemporaryElement.innerHTML)
+                componentObjects[componentId].__setHtmlTemplate(componentTemporaryElement.innerHTML)
             }
 
 
             /** Rendering phase */
             for (const componentId in componentObjects) {
-                const targetElement = AttributeHelper.getElementByXId(
-                    appInstance._getAppHtmlBody(),
+                const targetElement = __AttributeHelper.__getElementByXId(
+                    appInstance.__getHtmlBody(),
                     appInstance,
                     componentId
                 )
@@ -115,32 +129,32 @@ DOMHelper.ready(()=>{
                  */
                 if (targetElement===null) continue
 
-                const temporaryElement     = createTemporaryElement()
+                const temporaryElement     = __createTemporaryElement()
                 temporaryElement.innerHTML = targetElement.innerHTML
-                cleanChildComponents(
+                __cleanChildComponents(
                     temporaryElement,
-                    componentObjects[componentId]._getChildIds(),
+                    componentObjects[componentId].__getChildIds(),
                     appInstance
                 )
-                await renderHelper(
+                await __renderHelper(
                     temporaryElement,
                     componentObjects[componentId],
                     appInstance
                 )
-                scopeBindElement(
+                __scopeBindElement(
                     temporaryElement,
                     targetElement,
                     appInstance,
-                    componentObjects[componentId]._getChildIds() 
+                    componentObjects[componentId].__getChildIds() 
                 )
             }
 
-            copyBindElement(appInstance._getAppHtmlBody(),appElement)
-            appInstance._setAppReadyStatus()
-
+            __copyBindElement(appInstance.__getHtmlBody(),appElement)
+            appInstance.__setReadyStatus()
         } catch (error) {
             console.error(error)
         }
     })
 })
+
 

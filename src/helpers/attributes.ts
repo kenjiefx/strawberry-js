@@ -1,5 +1,6 @@
-import { StrawberryComponent } from "../models/component"
-import { StrawberryApp } from "../models/strawberry.app"
+import { __StrawberryComponent } from "../models/component"
+import { __StrawberryApp } from "../models/strawberry"
+
 
 export const STRAWBERRY_ATTRIBUTE = 'strawberry'
 export const SERVICE_OBJECT = 'service_object'
@@ -33,47 +34,52 @@ export const LOCK_ID_ATTR_KEY = 'set'
 export const LOCK_ID_ATTR_VALUE = '@'
 export const EVENT_ELEMENT_ATTR = 'event'
 
-export class AttributeHelper {
+export class __AttributeHelper {
     /**
      * Creates a component attribute with value. Example: `xcomponent="@ComponentName"`
      */
-    static makeComponentXAttr(name:string,appInstance:StrawberryApp){
-        return appInstance._getAppConfig().prefix + COMPONENT_ELEMENT_ATTR + '="@'+name+'"'
+    static __makeComponentXAttr( name:string, appInstance:__StrawberryApp){
+        return appInstance.__getConfiguration().prefix + COMPONENT_ELEMENT_ATTR + '="@'+name+'"'
     }
     /**
      * Creates an attribute with any key. Example: `xsomekeyhere`
      */
-    static makeXAttr(attributeName:string,appInstance:StrawberryApp){
-        return appInstance._getAppConfig().prefix + attributeName
+    static __makeXAttr(attributeName:string,appInstance:__StrawberryApp){
+        return appInstance.__getConfiguration().prefix + attributeName
     }
     /**
      * Creates an attribute with any key, with any value. Example: `xsomekeyhere="value"`
      */
-    static makeXAttrWithValue(attributeName:string,appInstance:StrawberryApp,value:string){
-        return appInstance._getAppConfig().prefix + attributeName + '="'+ value +'"'
+    static __makeXAttrWithValue(attributeName:string,appInstance:__StrawberryApp,value:string){
+        return appInstance.__getConfiguration().prefix + attributeName + '="'+ value +'"'
     }
-    static getXValueFromElAttr(element:Element,prefix:string,attributeName:string){
+
+    static __getXValueFromElAttr(element:Element,prefix:string,attributeName:string){
         const resolvedAttrName = prefix + attributeName
         return element.getAttribute(resolvedAttrName)
     }
-    static getElementByXId(element:Element,appInstance:StrawberryApp,xid:string){
-        const resolvedXidAttr = appInstance._getAppConfig().prefix + STRAWBERRY_ID_ATTR + '="' + xid + '"'
+
+    static __getElementByXId(element:Element,appInstance:__StrawberryApp,xid:string){
+        const resolvedXidAttr = appInstance.__getConfiguration().prefix + STRAWBERRY_ID_ATTR + '="' + xid + '"'
         return element.querySelector(`[${resolvedXidAttr}]`)
     }
-    static getElementByXAttribute(element:Element,appInstance:StrawberryApp,attributeName:string){
-        const resolvedAttrName = this.makeXAttr(attributeName,appInstance)
+
+    static __getElementByXAttribute(element:Element,appInstance:__StrawberryApp,attributeName:string){
+        const resolvedAttrName = this.__makeXAttr(attributeName,appInstance)
         return element.querySelectorAll(`[${resolvedAttrName}]`)
     }
-    static getXidsOfChildComponentByName(element:Element,appInstance:StrawberryApp,componentObject:StrawberryComponent,childComponentName:string):Array<string>{
+    
+    static __getXidsOfChildComponentByName(element:Element,appInstance:__StrawberryApp,componentObject:__StrawberryComponent,childComponentName:string):Array<string>{
         if (!childComponentName.includes('@')) childComponentName = '@'+childComponentName
-        const resultXids = []
+        const resultXids:Array<string> = []
         // Making sure we are only getting direct siblings
-        const childIds = componentObject._getChildIds()
+        const childIds = componentObject.__getChildIds()
         for (let i = 0; i < childIds.length; i++) {
             const childId = childIds[i];
-            const xidAttr = this.makeXAttrWithValue(STRAWBERRY_ID_ATTR,appInstance,childId)
+            const xidAttr = this.__makeXAttrWithValue(STRAWBERRY_ID_ATTR,appInstance,childId)
             const xidElement = element.querySelector(`[${xidAttr}]`)
-            const componentName = xidElement.getAttribute(appInstance._getAppConfig().prefix + COMPONENT_ELEMENT_ATTR)
+            if (xidElement===null) continue 
+            const componentName = xidElement.getAttribute(appInstance.__getConfiguration().prefix + COMPONENT_ELEMENT_ATTR)
             if (componentName === childComponentName) {
                 resultXids.push(childId)
             }

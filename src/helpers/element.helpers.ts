@@ -1,24 +1,27 @@
-import { StrawberryComponent } from "../models/component"
-import { StrawberryApp } from "../models/strawberry.app"
-import { AttributeHelper, EVENT_ELEMENT_ATTR, LOCK_ID_ATTR_KEY, LOCK_ID_ATTR_VALUE, STRAWBERRY_ATTRIBUTE, STRAWBERRY_ID_ATTR } from "./attributes"
-import { getAppInstances } from "./boot.helper"
+import { __StrawberryComponent } from "../models/component"
+import { __StrawberryApp } from "../models/strawberry"
+import { EVENT_ELEMENT_ATTR, LOCK_ID_ATTR_KEY, LOCK_ID_ATTR_VALUE, STRAWBERRY_ATTRIBUTE, STRAWBERRY_ID_ATTR, __AttributeHelper } from "./attributes"
 
-export function cleanChildComponents(component:Element,childComponentIds:Array<string>,appInstance:StrawberryApp){
+
+export function __cleanChildComponents(component:Element,childComponentIds:Array<string>,appInstance:__StrawberryApp){
     for (let i = 0; i < childComponentIds.length; i++) {
         const childComponentId = childComponentIds[i]
-        AttributeHelper.getElementByXId(
+        const element = __AttributeHelper.__getElementByXId(
             component,
             appInstance,
             childComponentId
-        ).innerHTML = ''
+        )
+        if (element!==null) {
+            element.innerHTML = ''
+        }
     }
 }
 
-export function createTemporaryElement(){
+export function __createTemporaryElement(){
     return document.implementation.createHTMLDocument().body
 }
 
-export function copyBindElement(bindFrom:Element,bindTo:Element) {
+export function __copyBindElement(bindFrom:Element,bindTo:Element) {
     if (bindFrom===null) return 
     while (bindFrom.childNodes.length > 0) {
         bindTo.appendChild(bindFrom.childNodes[0])
@@ -26,18 +29,18 @@ export function copyBindElement(bindFrom:Element,bindTo:Element) {
 }
 
 
-export function scopeBindElement(bindFromEl:Element,bindToEl:Element,appInstance:StrawberryApp,childComponentIds:Array<string>){
+export function __scopeBindElement(bindFromEl:Element,bindToEl:Element,appInstance:__StrawberryApp,childComponentIds:Array<string>){
     const temporaryChildren = {}
     for (let i = 0; i < childComponentIds.length; i++) {
         const childComponentId      = childComponentIds[i]
-        const childTemporaryElement = createTemporaryElement()
-        const childActualComponent  = AttributeHelper.getElementByXId(
+        const childTemporaryElement = __createTemporaryElement()
+        const childActualComponent  = __AttributeHelper.__getElementByXId(
             bindToEl,
             appInstance,
             childComponentId
         )
         if (childActualComponent!==null) {
-            copyBindElement(
+            __copyBindElement(
                 childActualComponent,
                 childTemporaryElement
             )
@@ -45,18 +48,18 @@ export function scopeBindElement(bindFromEl:Element,bindToEl:Element,appInstance
         }
     }
     bindToEl.innerHTML = ''
-    copyBindElement(
+    __copyBindElement(
         bindFromEl,
         bindToEl
     )
     for (const childComponentId in temporaryChildren) {
-        const childActualComponent = AttributeHelper.getElementByXId(
+        const childActualComponent = __AttributeHelper.__getElementByXId(
             bindToEl,
             appInstance,
             childComponentId
         )
         if (childActualComponent===null) continue
-        copyBindElement(
+        __copyBindElement(
             temporaryChildren[childComponentId],
             childActualComponent
         )
@@ -65,7 +68,7 @@ export function scopeBindElement(bindFromEl:Element,bindToEl:Element,appInstance
 }
 
 
-export function disposeElement(element:Element,comment:string){
+export function __disposeElement(element:Element,comment:string){
     if (null!==element) {
         element.innerHTML = '';
         if (element.parentNode !== null) {
@@ -75,19 +78,19 @@ export function disposeElement(element:Element,comment:string){
 }
 
 
-export function lockElement(element:Element,appInstance:StrawberryApp){
-    const lockAttrName = AttributeHelper.makeXAttr(LOCK_ID_ATTR_KEY,appInstance)
+export function __lockElement(element:Element,appInstance:__StrawberryApp){
+    const lockAttrName = __AttributeHelper.__makeXAttr(LOCK_ID_ATTR_KEY,appInstance)
     element.setAttribute(lockAttrName,LOCK_ID_ATTR_VALUE)
 }
 
-export function isElementLocked(element:Element,appInstance:StrawberryApp){
-    const lockAttrName = AttributeHelper.makeXAttr(LOCK_ID_ATTR_KEY,appInstance)
+export function __isElementLocked(element:Element,appInstance:__StrawberryApp){
+    const lockAttrName = __AttributeHelper.__makeXAttr(LOCK_ID_ATTR_KEY,appInstance)
     return (element.getAttribute(lockAttrName)!==null)
 }
 
 
-export function isElementEventLocked(element:Element,eventName:string,appInstance:StrawberryApp){
-    const lockAttrName = AttributeHelper.makeXAttr(EVENT_ELEMENT_ATTR,appInstance)
+export function __isElementEventLocked(element:Element,eventName:string,appInstance:__StrawberryApp){
+    const lockAttrName = __AttributeHelper.__makeXAttr(EVENT_ELEMENT_ATTR,appInstance)
     let result = false
     const eventsAdded = element.getAttribute(lockAttrName)
     if (eventsAdded===null) return false
@@ -100,8 +103,8 @@ export function isElementEventLocked(element:Element,eventName:string,appInstanc
     return result
 }
 
-export function lockElementEvent(element:Element,eventName:string,appInstance:StrawberryApp){
-    const lockAttrName = AttributeHelper.makeXAttr(EVENT_ELEMENT_ATTR,appInstance)
+export function __lockElementEvent(element:Element,eventName:string,appInstance:__StrawberryApp){
+    const lockAttrName = __AttributeHelper.__makeXAttr(EVENT_ELEMENT_ATTR,appInstance)
     const eventsAdded = element.getAttribute(lockAttrName)
     if (eventsAdded===null) {
         element.setAttribute(lockAttrName,eventName)
@@ -116,29 +119,36 @@ export function lockElementEvent(element:Element,eventName:string,appInstance:St
     element.setAttribute(lockAttrName,allEvents.join(','))
 }
 
-export function getLiveAppElement(appInstance:StrawberryApp):Element{
-    const xAppElements = AttributeHelper.getElementByXAttribute(
+export function __getLiveAppElement(appInstance:__StrawberryApp):Element{
+    const xAppElements = __AttributeHelper.__getElementByXAttribute(
         document.body,
         appInstance,
         STRAWBERRY_ATTRIBUTE
     )
-    let appElement:Element
+    let appElement:Element | null = null
     for (let i = 0; i < xAppElements.length; i++) {
         const element = xAppElements[i]
         if (element.tagName!=='TEMPLATE') {
             appElement = element
         }
     }
+    if (appElement===null) {
+        throw new Error(`strawberry.js no live app element found for ${appInstance.__getAppName()}`)
+    }
     return appElement
 }
 
 
-export function selectElementsButNotChildOfComponent(attributeWithValue:string,componentObject:StrawberryComponent,appInstance:StrawberryApp){
-    const componentChildIds = componentObject._getChildIds()
+export function __selectElementsButNotChildOfComponent(
+    attributeWithValue:string,
+    componentObject:__StrawberryComponent,
+    appInstance: __StrawberryApp
+    ): NodeListOf<Element> | null{
+    const componentChildIds = componentObject.__getChildIds()
     let selector = ''
     for (let i = 0; i < componentChildIds.length; i++) {
         const childId = componentChildIds[i]
-        const childXidAttrName = AttributeHelper.makeXAttrWithValue(
+        const childXidAttrName = __AttributeHelper.__makeXAttrWithValue(
             STRAWBERRY_ID_ATTR,
             appInstance,
             childId
@@ -147,30 +157,31 @@ export function selectElementsButNotChildOfComponent(attributeWithValue:string,c
     }
     selector += ` > [${attributeWithValue}]`
     if (componentChildIds.length===0) {
-        const xidAttrName = AttributeHelper.makeXAttrWithValue(STRAWBERRY_ID_ATTR, appInstance, componentObject._getComponentId());
+        const xidAttrName = __AttributeHelper.__makeXAttrWithValue(STRAWBERRY_ID_ATTR, appInstance, componentObject.__getId());
         selector = `[${xidAttrName}] [${attributeWithValue}]`
     }
-    const componentElement = AttributeHelper.getElementByXId(
-        getLiveAppElement(appInstance),
+    const componentElement = __AttributeHelper.__getElementByXId(
+        __getLiveAppElement(appInstance),
         appInstance,
-        componentObject._getComponentId()
+        componentObject.__getId()
     )
+    if (componentElement===null) return null
     return componentElement.querySelectorAll(selector)
 }
 
-export function getLiveComponentAsTemplate(componentObject:StrawberryComponent,appInstance:StrawberryApp){
-    const temporaryElement = createTemporaryElement()
-    const componentElement = AttributeHelper.getElementByXId(
-        getLiveAppElement(appInstance),
+export function __getLiveComponentAsTemplate(componentObject:__StrawberryComponent,appInstance:__StrawberryApp){
+    const temporaryElement = __createTemporaryElement()
+    const componentElement = __AttributeHelper.__getElementByXId(
+        __getLiveAppElement(appInstance),
         appInstance,
-        componentObject._getComponentId()
+        componentObject.__getId()
     )
     if (componentElement===null) return null 
     temporaryElement.innerHTML = componentElement.innerHTML 
-    const componentChildIds = componentObject._getChildIds()
+    const componentChildIds = componentObject.__getChildIds()
     for (let i = 0; i < componentChildIds.length; i++) {
         const componentChildId = componentChildIds[i]
-        const childComponentElement = AttributeHelper.getElementByXId(
+        const childComponentElement = __AttributeHelper.__getElementByXId(
             temporaryElement,
             appInstance,
             componentChildId
@@ -181,4 +192,3 @@ export function getLiveComponentAsTemplate(componentObject:StrawberryComponent,a
     }
     return temporaryElement.innerHTML
 }
-
