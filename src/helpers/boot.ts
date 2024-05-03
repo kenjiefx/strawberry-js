@@ -343,7 +343,7 @@ export function __bootComponentHandler(componentObject:__StrawberryComponent,app
                 /** Factory injection */
                 const factory = appInstance.__getAppLibrary().__factory.__getHandler(argument)
                 if (factory!==null) {
-                    injectableArguments.push(await __bootServiceHandler(argument,appInstance))
+                    injectableArguments.push(await __bootFactoryHandler(argument,appInstance))
                     continue
                 }
 
