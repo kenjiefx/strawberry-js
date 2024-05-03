@@ -153,7 +153,7 @@ export function __bootComponentTemplates(
     
 }
 
-export function __bootCallbackParser(handler:(...args: any[])=>any,type:'component'|'service'|'factory',name:string):Promise<Array<string>>{
+export function __bootCallbackParser(handler:(...args: any[])=>any,type:'component'|'service'|'factory'|'helper',name:string):Promise<Array<string>>{
     return new Promise((resolve,reject)=>{
         try {
             const handlerStr = handler.toString().split('{')[0]
@@ -168,12 +168,14 @@ export function __bootCallbackParser(handler:(...args: any[])=>any,type:'compone
     })
 }
 
-function __isServiceOrFactory(name:string,appInstance:__StrawberryApp):'service' | 'factory' | null {
+function __isServiceOrFactoryOrHelper(name:string,appInstance:__StrawberryApp):'service' | 'factory' | 'helper' | null {
     /** Check if it is a Service */
     let serviceOb = appInstance.__getAppLibrary().__service.__getHandler(name)
     if (serviceOb!==null) return 'service'
     let factorHanlder = appInstance.__getAppLibrary().__factory.__getHandler(name)
     if (factorHanlder!==null) return 'factory'
+    const helperObj = appInstance.__getAppLibrary().__helper.__getHandler(name)
+    if (helperObj!==null) return 'helper'
     return null
 }
 
@@ -188,15 +190,19 @@ export function __bootFactoryHandler(factoryName:string,appInstance:__Strawberry
             const injectableArguments: Array<null|TypeofFactory|{[key: string]: any}> = []
             for (let i = 0; i < args.length; i++) {
                 const arg = args[i]
-                if (__isServiceOrFactory(arg,appInstance)==='service') {
+                const handlerType = __isServiceOrFactoryOrHelper(arg,appInstance)
+                if (handlerType==='service') {
                     const depService = await __bootServiceHandler(arg,appInstance)
                     injectableArguments.push(depService)
                     continue
                 }
-                if (__isServiceOrFactory(arg,appInstance)==='factory') {
+                if (handlerType==='factory') {
                     const depFactory = await __bootFactoryHandler(arg,appInstance)
                     injectableArguments.push(depFactory)
                     continue
+                }
+                if (handlerType==='helper') {
+                    throw new Error(`${__error} factories [${factoryName}] are not allowed to have helpers [${arg}] as dependencies.`)
                 }
                 injectableArguments.push(null)
             }
@@ -236,15 +242,19 @@ export function __bootServiceHandler(serviceName:string,appInstance:__Strawberry
 
             for (let i = 0; i < args.length; i++) {
                 const arg = args[i]
-                if (__isServiceOrFactory(arg,appInstance)==='service') {
+                const handlerType = __isServiceOrFactoryOrHelper(arg,appInstance)
+                if (handlerType==='service') {
                     const depService = await __bootServiceHandler(arg,appInstance)
                     injectableArguments.push(depService)
                     continue
                 }
-                if (__isServiceOrFactory(arg,appInstance)==='factory') {
+                if (handlerType==='factory') {
                     const depFactory = await __bootFactoryHandler(arg,appInstance)
                     injectableArguments.push(depFactory)
                     continue
+                }
+                if (handlerType==='helper') {
+                    throw new Error(`${__error} services [${serviceName}] are not allowed to have helpers [${arg}] as dependencies.`)
                 }
                 injectableArguments.push(null)
             }
@@ -257,6 +267,86 @@ export function __bootServiceHandler(serviceName:string,appInstance:__Strawberry
 
             resolve(handleOb)
 
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+const __bootHelperHandler = (helperName:string, scopeObject: ScopeObject, componentObject:__StrawberryComponent, appInstance:__StrawberryApp):Promise<{[key:string]:any}|null> => {
+    return new Promise (async (resolve,reject)=>{
+        try {
+            const helperHandler = appInstance.__getAppLibrary().__helper.__getHandler(helperName) 
+            if (helperHandler===null) {
+                throw new Error(`${__error} unregistered helper callback ${helperHandler}.`)
+            }
+            const handler = helperHandler.__handler
+            const args = await __bootCallbackParser(handler,'helper',helperName)
+            const injectableArguments: Array<null|TypeofFactory|{[key: string]: any}> = []
+
+            for (let i = 0; i < args.length; i++) {
+                const arg = args[i]
+                if (arg===SCOPE_ARGUMENT_KEY) {
+                    injectableArguments.push(scopeObject)
+                    continue
+                }
+                if (arg.charAt(0)==='$') {
+                    switch(arg) {
+                        case BLOCK_ARGUMENT_KEY: 
+                            injectableArguments.push((blockName:string,callback:()=>any)=>{
+                                return __blocksService(componentObject,appInstance,blockName,callback)
+                            })
+                        break;
+                        case ENABLE_ARGUMENT_KEY: 
+                            injectableArguments.push((elementName:string)=>{
+                                return __enableService(componentObject,appInstance,elementName)
+                            })
+                        break;
+                        case DISABLE_ARGUMENT_KEY: 
+                            injectableArguments.push((elementName:string)=>{
+                                return __disableService(componentObject,appInstance,elementName)
+                            })
+                        break;
+                        case PATCH_ARGUMENT_KEY: 
+                            injectableArguments.push((elementName?:string|null)=>{
+                                return __patchEntityService(componentObject,appInstance,elementName??null)
+                            })
+                        break;
+                        case PARENT_ARGUMENT_KEY: 
+                            injectableArguments.push(__parentReferenceService(componentObject,appInstance))
+                        break;
+                        case APP_ARGUMENT_KEY: 
+                            injectableArguments.push(__strawberryAppReferenceService(componentObject,appInstance))
+                        break;
+                        case CHILDREN_ARGUMENT_KEY: 
+                            injectableArguments.push(__childrenReferenceService(componentObject,appInstance))
+                        break;
+                        default: 
+                        break;
+                    }
+                    continue
+                }
+                const handlerType = __isServiceOrFactoryOrHelper(arg,appInstance)
+                if (handlerType==='service') {
+                    const depService = await __bootServiceHandler(arg,appInstance)
+                    injectableArguments.push(depService)
+                    continue
+                }
+                if (handlerType==='factory') {
+                    const depFactory = await __bootFactoryHandler(arg,appInstance)
+                    injectableArguments.push(depFactory)
+                    continue
+                }
+                if (handlerType==='helper') {
+                    const depHelper = await __bootHelperHandler(arg,scopeObject,componentObject,appInstance)
+                    injectableArguments.push(depHelper)
+                    continue
+                }
+                injectableArguments.push(null)
+            }
+            
+            const handleObj = handler(...injectableArguments)
+            resolve(handleObj)
         } catch (error) {
             reject(error)
         }
@@ -344,6 +434,13 @@ export function __bootComponentHandler(componentObject:__StrawberryComponent,app
                 const factory = appInstance.__getAppLibrary().__factory.__getHandler(argument)
                 if (factory!==null) {
                     injectableArguments.push(await __bootFactoryHandler(argument,appInstance))
+                    continue
+                }
+
+                /** Helper injection */
+                const helper = appInstance.__getAppLibrary().__helper.__getHandler(argument)
+                if (helper!==null) {
+                    injectableArguments.push(await __bootHelperHandler(argument,scopeObject,componentObject,appInstance))
                     continue
                 }
 
