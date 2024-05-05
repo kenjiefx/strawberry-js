@@ -33,6 +33,7 @@ export const REPEAT_REFERENCE_TOKEN = '$$index'
 export const LOCK_ID_ATTR_KEY = 'set'
 export const LOCK_ID_ATTR_VALUE = '@'
 export const EVENT_ELEMENT_ATTR = 'event'
+export const ELEMENT_REFERENCE_ATTR = 'rid'
 
 export class __AttributeHelper {
     /**
