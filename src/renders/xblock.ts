@@ -23,6 +23,10 @@ export function __blockHelpers(targetElement:Element,componentObject:__Strawberr
 
                 if (blockElName===null) continue
 
+                if (blockElName.includes("\\")) {
+                    throw new Error('Invalid character within the block element name')
+                }
+
                 /** Retrieving and registering the template */
                 const componentTemplate = componentObject.__getHtmlTemplate()
                 const tempCompEl        = __createTemporaryElement()

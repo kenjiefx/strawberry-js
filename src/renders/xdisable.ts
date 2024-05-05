@@ -18,6 +18,9 @@ export function __disablersHelper(targetElement:Element,componentObject:__Strawb
                     DISABLE_ELEMENT_ATTR
                 )
                 if (elementName===null) continue
+                if (elementName.includes("\\")) {
+                    throw new Error('Invalid character within the disabled element name')
+                }
                 if (null===componentObject.__getNamedElementState(elementName)) {
                     componentObject.__registerNamedElement(elementName,'disabled','')
                 }

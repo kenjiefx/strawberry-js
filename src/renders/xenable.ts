@@ -19,6 +19,9 @@ export function __enablersHelpers(targetElement:Element,componentObject:__Strawb
                     ENABLE_ELEMENT_ATTR
                 )
                 if (elementName===null) continue
+                if (elementName.includes("\\")) {
+                    throw new Error('Invalid character within the enabled element name')
+                }
                 if (null===componentObject.__getNamedElementState(elementName)) {
                     componentObject.__registerNamedElement(elementName,'enabled','')
                 }

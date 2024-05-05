@@ -9,7 +9,7 @@ import { __disableService } from "../services/$disable"
 import { __enableService } from "../services/$enable"
 import { __parentReferenceService } from "../services/$parent"
 import { __patchEntityService } from "../services/$patch"
-import { APP_ARGUMENT_KEY, BLOCK_ARGUMENT_KEY, CHILDREN_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, DISABLE_ARGUMENT_KEY, ENABLE_ARGUMENT_KEY, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE, __AttributeHelper } from "./attributes"
+import { APP_ARGUMENT_KEY, BLOCK_ARGUMENT_KEY, BLOCK_ELEMENT_ATTR, CHILDREN_ARGUMENT_KEY, COMPONENT_ELEMENT_ATTR, DISABLE_ARGUMENT_KEY, DISABLE_ELEMENT_ATTR, ELEMENT_REFERENCE_ATTR, ENABLE_ARGUMENT_KEY, ENABLE_ELEMENT_ATTR, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY, STRAWBERRY_ATTRIBUTE, __AttributeHelper } from "./attributes"
 import { __createComponentId } from "./id.helpers"
 
 const __error = 'strawberry.js: [BootError]'
@@ -48,6 +48,27 @@ export function __getAppInstances(appInstance:__StrawberryApp): [Element, HTMLTe
         throw new Error()
     }
     return [targetElement,templateElement]
+}
+
+
+export function __bootComponentNamedElements(
+    componentId: string,
+    componentImplementation: Document,
+    appInstance: __StrawberryApp
+){
+    const refElementAttr = __AttributeHelper.__makeXAttr(ELEMENT_REFERENCE_ATTR,appInstance)
+    /** Registering Ids to Block, Disabled, and Enabled elements */
+    const elementAttrs = [BLOCK_ELEMENT_ATTR, DISABLE_ELEMENT_ATTR, ENABLE_ELEMENT_ATTR]
+    const allElements:Array<Element> = []
+    for (let i = 0; i < elementAttrs.length; i++) {
+        const elementAttr = elementAttrs[i]
+        const elements = Array.from(componentImplementation.body.querySelectorAll(`[${__AttributeHelper.__makeXAttr(elementAttr, appInstance)}]`));
+        allElements.push(...elements)
+    }
+    for (let j = 0; j < allElements.length; j++) {
+        const element = allElements[j]
+        element.setAttribute(refElementAttr, componentId)
+    }
 }
 
 
@@ -93,6 +114,8 @@ export function __bootComponentTemplates(
             componentImplementation.body.innerHTML = componentTemplateElement.innerHTML
 
             componentObject.__setId(componentId).__setName(componentName)
+
+            __bootComponentNamedElements(componentId,componentImplementation,appInstance)
 
             /** Registering the Component in the Library */
             appInstance.__getAppLibrary().__component.__setTemplate(
